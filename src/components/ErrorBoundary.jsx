@@ -16,7 +16,7 @@ export default class ErrorBoundary extends Component {
         <main className="grid min-h-screen place-items-center px-6 text-center text-white">
           <div className="glass-panel max-w-xl rounded-[28px] p-8">
             <p className="text-sm font-semibold uppercase tracking-[0.28em] text-[#ff6b6b]">
-              Echo could not render
+              Blog could not render
             </p>
             <h1 className="mt-4 text-3xl font-semibold">Something stopped the app.</h1>
             <p className="mt-4 text-white/62">

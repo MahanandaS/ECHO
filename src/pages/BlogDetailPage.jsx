@@ -15,7 +15,7 @@ export default function BlogDetailPage({
   const post = posts.find((item) => item.id === postId);
 
   const handleDelete = () => {
-    const shouldDelete = window.confirm('Delete this writing from Echo?');
+    const shouldDelete = window.confirm('Delete this post?');
     if (!shouldDelete) {
       return;
     }
@@ -78,7 +78,7 @@ export default function BlogDetailPage({
             </div>
             <div className="min-w-0">
               <p className="font-semibold text-white">{post.author || 'Guest Writer'}</p>
-              <p className="truncate text-sm text-white/48">{post.authorBio || 'Writer on Echo'}</p>
+              <p className="truncate text-sm text-white/48">{post.authorBio || 'Blog writer'}</p>
             </div>
           </div>
 

@@ -48,7 +48,7 @@ export default function BlogCard({ post, large = false }) {
               <p className="truncate text-sm font-semibold text-white/82">
                 {post.author || 'Guest Writer'}
               </p>
-              <p className="truncate text-xs text-white/42">{post.authorBio || 'Writer on Echo'}</p>
+              <p className="truncate text-xs text-white/42">{post.authorBio || 'Blog writer'}</p>
             </div>
           </div>
           <h3 className="font-web text-balance text-2xl font-black uppercase leading-tight text-white">

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { seedPosts } from '../data/seedPosts.js';
 
-const POSTS_STORAGE_KEY = 'echo.anonymous.posts.v1';
+const POSTS_STORAGE_KEY = 'blog.posts.v1';
 const ADMIN_ID = 'admin-owner';
 
 const estimateReadTime = (text) => {
@@ -38,9 +38,9 @@ export function usePosts() {
       ...post,
       id: createId(),
       ownerId,
-      author: ownerId === ADMIN_ID ? 'Admin' : 'Anonymous',
-      authorBio: ownerId === ADMIN_ID ? 'Site Administrator' : 'Anonymous voice on Echo',
-      authorInitials: ownerId === ADMIN_ID ? 'A' : '?',
+      author: ownerId === ADMIN_ID ? 'Admin' : 'User',
+      authorBio: ownerId === ADMIN_ID ? 'Site Administrator' : 'Blog writer',
+      authorInitials: ownerId === ADMIN_ID ? 'A' : post.authorInitials || 'U',
       createdAt: 'Just now',
       readTime: estimateReadTime(`${post.title} ${post.content}`),
       featured: false,
@@ -66,8 +66,8 @@ export function usePosts() {
       ...existingPost,
       ...updates,
       ownerId: existingPost.ownerId,
-      author: existingPost.ownerId === ADMIN_ID ? 'Admin' : 'Anonymous',
-      authorBio: existingPost.ownerId === ADMIN_ID ? 'Site Administrator' : 'Anonymous voice on Echo',
+      author: existingPost.ownerId === ADMIN_ID ? 'Admin' : 'User',
+      authorBio: existingPost.ownerId === ADMIN_ID ? 'Site Administrator' : 'Blog writer',
       authorInitials: existingPost.ownerId === ADMIN_ID ? 'A' : '?',
       readTime: estimateReadTime(`${updates.title || existingPost.title} ${updates.content || existingPost.content}`),
       updatedAt: 'Updated just now',

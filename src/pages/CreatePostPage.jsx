@@ -7,7 +7,7 @@ import { categories } from '../data/seedPosts.js';
 
 const fallbackImage =
   'https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=1200&q=80';
-const DRAFT_STORAGE_KEY = 'echo.draft';
+const DRAFT_STORAGE_KEY = 'blog.draft';
 
 const defaultDraft = {
   title: '',
@@ -257,12 +257,12 @@ export default function CreatePostPage({
                   {draft.excerpt || 'Your post description will appear here.'}
                 </p>
                 <div className="mt-7 flex items-center gap-3 text-left">
-                  <div className="grid h-12 w-12 place-items-center rounded-full bg-gradient-to-br from-amber-400 to-amber-600 text-sm font-black text-black">
-                    A
+                  <div className="grid h-12 w-12 place-items-center rounded-full bg-white text-sm font-black text-black">
+                    U
                   </div>
                   <div>
-                    <p className="font-semibold text-white">Admin</p>
-                    <p className="text-sm text-white/45">Site Administrator</p>
+                    <p className="font-semibold text-white">Your Name</p>
+                    <p className="text-sm text-white/45">Blog writer</p>
                   </div>
                 </div>
                 <ArticleBody
@@ -301,17 +301,17 @@ export default function CreatePostPage({
 
             <div className="mb-5 rounded-[26px] border border-white/10 bg-black/20 p-4">
               <div className="mb-4 flex items-center gap-3">
-                <div className="grid h-10 w-10 place-items-center rounded-full bg-gradient-to-br from-amber-400 to-amber-600 text-black font-semibold">
-                  A
+                <div className="grid h-10 w-10 place-items-center rounded-full bg-white text-black font-semibold">
+                  U
                 </div>
                 <div>
-                  <p className="font-semibold text-white">Curated by Admin</p>
-                  <p className="text-sm text-white/45">Site administrator only.</p>
+                  <p className="font-semibold text-white">Your story</p>
+                  <p className="text-sm text-white/45">Published under your name.</p>
                 </div>
               </div>
 
               <p className="text-sm leading-6 text-white/55">
-                Your posts will appear marked as Admin on the platform, maintaining full editorial control.
+                Your post will be published to the blog feed with your name and can be edited or deleted anytime.
               </p>
             </div>
 
@@ -366,7 +366,7 @@ export default function CreatePostPage({
               className="mt-6 inline-flex w-full items-center justify-center gap-3 rounded-full bg-white px-6 py-4 font-semibold text-black transition hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-50"
               disabled={!draft.title.trim() || !draft.content.trim()}
             >
-              {isEditing ? 'Update admin post' : 'Publish admin post'}
+              {isEditing ? 'Update post' : 'Publish post'}
               <Send className="h-4 w-4" />
             </button>
 

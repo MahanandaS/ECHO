@@ -30,7 +30,7 @@ export default function HomeFeedPage({ posts }) {
               Home feed
             </p>
             <h1 className="font-web text-balance text-5xl font-black uppercase tracking-[-0.08em] text-white md:text-7xl">
-              Fresh echoes from the room.
+              Latest stories & articles.
             </h1>
             {adminPostCount > 0 && (
               <p className="mt-3 text-sm text-white/58">
@@ -71,7 +71,7 @@ export default function HomeFeedPage({ posts }) {
               </p>
               <p className="mt-3 text-white/58">
                 {posts.length === 0
-                  ? 'Start creating content to build the echo chamber.'
+                  ? 'Be the first to publish a post.'
                   : 'Try a different search or category.'}
               </p>
             </div>

@@ -1,18 +1,43 @@
-import { Route, Routes } from 'react-router-dom';
+import { Route, Routes, Navigate } from 'react-router-dom';
 import AppLayout from './layouts/AppLayout.jsx';
+import LoginPage from './pages/LoginPage.jsx';
 import LandingPage from './pages/LandingPage.jsx';
 import HomeFeedPage from './pages/HomeFeedPage.jsx';
 import CreatePostPage from './pages/CreatePostPage.jsx';
 import BlogDetailPage from './pages/BlogDetailPage.jsx';
 import ExplorePage from './pages/ExplorePage.jsx';
 import { usePosts } from './hooks/usePosts.js';
+import { useAuth } from './hooks/useAuth.js';
 
 export default function App() {
   const postsState = usePosts();
-  const currentUserId = postsState.ADMIN_ID; // User is always admin (site owner)
+  const authState = useAuth();
+
+  if (authState.isLoading) {
+    return (
+      <div className="grid min-h-screen place-items-center bg-black">
+        <div className="text-center">
+          <p className="text-white/60">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // If not authenticated, show login page on all routes except /login
+  if (!authState.isAuthenticated) {
+    return (
+      <Routes>
+        <Route path="/login" element={<LoginPage onLogin={authState.login} />} />
+        <Route path="*" element={<Navigate to="/login" replace />} />
+      </Routes>
+    );
+  }
+
+  // User is authenticated, show app with protected routes
+  const currentUserId = authState.user.id;
 
   return (
-    <AppLayout>
+    <AppLayout user={authState.user} onLogout={authState.logout}>
       <Routes>
         <Route path="/" element={<LandingPage posts={postsState.posts} />} />
         <Route path="/feed" element={<HomeFeedPage posts={postsState.posts} />} />
