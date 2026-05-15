@@ -27,7 +27,10 @@ export default function App() {
   if (!authState.isAuthenticated) {
     return (
       <Routes>
-        <Route path="/login" element={<LoginPage onLogin={authState.login} />} />
+        <Route
+          path="/login"
+          element={<LoginPage onLogin={authState.login} onSignup={authState.signup} />}
+        />
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     );
