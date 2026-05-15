@@ -1,20 +1,12 @@
 import { useEffect, useState } from 'react';
 import { seedPosts } from '../data/seedPosts.js';
 
-const POSTS_STORAGE_KEY = 'echo.posts';
+const POSTS_STORAGE_KEY = 'echo.anonymous.posts.v1';
+const ADMIN_ID = 'admin-owner';
 
 const estimateReadTime = (text) => {
   const words = text.trim().split(/\s+/).filter(Boolean).length;
   return `${Math.max(1, Math.ceil(words / 180))} min read`;
-};
-
-const getInitials = (name) => {
-  return name
-    .trim()
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((part) => part.charAt(0).toUpperCase())
-    .join('');
 };
 
 const createId = () => {
@@ -41,13 +33,14 @@ export function usePosts() {
     localStorage.setItem(POSTS_STORAGE_KEY, JSON.stringify(posts));
   }, [posts]);
 
-  const createPost = (post) => {
+  const createPost = (post, ownerId = ADMIN_ID) => {
     const newPost = {
       ...post,
       id: createId(),
-      author: post.author || 'Guest Writer',
-      authorBio: post.authorBio || 'Writer on Echo',
-      authorInitials: post.authorInitials || getInitials(post.author || 'Guest Writer'),
+      ownerId,
+      author: ownerId === ADMIN_ID ? 'Admin' : 'Anonymous',
+      authorBio: ownerId === ADMIN_ID ? 'Site Administrator' : 'Anonymous voice on Echo',
+      authorInitials: ownerId === ADMIN_ID ? 'A' : '?',
       createdAt: 'Just now',
       readTime: estimateReadTime(`${post.title} ${post.content}`),
       featured: false,
@@ -57,21 +50,25 @@ export function usePosts() {
     return newPost;
   };
 
-  const updatePost = (postId, updates) => {
+  const updatePost = (postId, updates, currentUserId = ADMIN_ID) => {
     const existingPost = posts.find((post) => post.id === postId);
     if (!existingPost) {
+      return null;
+    }
+
+    // Check ownership - only allow owner or admin
+    if (existingPost.ownerId !== currentUserId && currentUserId !== ADMIN_ID) {
+      console.warn('User not authorized to update this post');
       return null;
     }
 
     const updatedPost = {
       ...existingPost,
       ...updates,
-      author: updates.author || existingPost.author || 'Guest Writer',
-      authorBio: updates.authorBio || existingPost.authorBio || 'Writer on Echo',
-      authorInitials:
-        updates.authorInitials ||
-        existingPost.authorInitials ||
-        getInitials(updates.author || existingPost.author || 'Guest Writer'),
+      ownerId: existingPost.ownerId,
+      author: existingPost.ownerId === ADMIN_ID ? 'Admin' : 'Anonymous',
+      authorBio: existingPost.ownerId === ADMIN_ID ? 'Site Administrator' : 'Anonymous voice on Echo',
+      authorInitials: existingPost.ownerId === ADMIN_ID ? 'A' : '?',
       readTime: estimateReadTime(`${updates.title || existingPost.title} ${updates.content || existingPost.content}`),
       updatedAt: 'Updated just now',
     };
@@ -83,9 +80,39 @@ export function usePosts() {
     return updatedPost;
   };
 
-  const deletePost = (postId) => {
-    setPosts((currentPosts) => currentPosts.filter((post) => post.id !== postId));
+  const deletePost = (postId, currentUserId = ADMIN_ID) => {
+    const post = posts.find((p) => p.id === postId);
+    if (!post) {
+      return false;
+    }
+
+    // Check ownership - only allow owner or admin
+    if (post.ownerId !== currentUserId && currentUserId !== ADMIN_ID) {
+      console.warn('User not authorized to delete this post');
+      return false;
+    }
+
+    setPosts((currentPosts) => currentPosts.filter((p) => p.id !== postId));
+    return true;
   };
 
-  return { posts, createPost, updatePost, deletePost };
+  const canEditPost = (postId, currentUserId = ADMIN_ID) => {
+    const post = posts.find((p) => p.id === postId);
+    return post && (post.ownerId === currentUserId || currentUserId === ADMIN_ID);
+  };
+
+  const canDeletePost = (postId, currentUserId = ADMIN_ID) => {
+    const post = posts.find((p) => p.id === postId);
+    return post && (post.ownerId === currentUserId || currentUserId === ADMIN_ID);
+  };
+
+  return {
+    posts,
+    createPost,
+    updatePost,
+    deletePost,
+    canEditPost,
+    canDeletePost,
+    ADMIN_ID,
+  };
 }

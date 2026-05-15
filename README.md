@@ -1,8 +1,8 @@
-# Echo
+# ECHO
 
-Echo is a frontend-only blogging website built with React, Vite, Tailwind CSS, React Router, and local React state.
+ECHO is a frontend-only anonymous blogging website built with React, Vite, Tailwind CSS, React Router, and local React state.
 
-There is no backend, authentication, database, or API layer. Posts are created and rendered locally in the UI for the current browser session.
+There is no backend, authentication, database, profile system, or API layer. Posts are created anonymously and rendered locally in the UI.
 
 ## Run The Project
 
@@ -10,6 +10,12 @@ Install dependencies:
 
 ```bash
 npm install
+```
+
+If you are continuing from an older Echo install, make sure Framer Motion is installed:
+
+```bash
+npm install framer-motion
 ```
 
 Start the development server:
@@ -72,6 +78,6 @@ After installing dependencies:
 
 ## Beginner-Friendly Notes
 
-The app keeps posts in `usePosts()` with `useState`, so refreshing the browser resets back to the seed posts. That is intentional for this frontend-only phase.
+The app keeps anonymous posts in `usePosts()` with `useState` and `localStorage`. There are no pre-existing blogs in the anonymous version.
 
 When you are ready for the next build step, improve the writing experience first: autosave to `localStorage`, markdown preview, draft state, and richer editor controls all fit the current architecture without adding a backend.

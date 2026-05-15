@@ -1,4 +1,4 @@
-import { Eye, ImagePlus, PenLine, RotateCcw, Send, UserRound, X } from 'lucide-react';
+import { Eye, ImagePlus, PenLine, RotateCcw, Send, X } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import ArticleBody from '../components/ArticleBody.jsx';
@@ -15,9 +15,6 @@ const defaultDraft = {
   content: '',
   category: categories[0],
   image: '',
-  authorName: '',
-  authorBio: '',
-  authorInitials: '',
 };
 
 const loadDraft = () => {
@@ -29,13 +26,21 @@ const loadDraft = () => {
   }
 };
 
-export default function CreatePostPage({ onCreatePost, onUpdatePost, posts = [] }) {
+export default function CreatePostPage({
+  onCreatePost,
+  onUpdatePost,
+  posts = [],
+  canEdit,
+}) {
   const navigate = useNavigate();
   const { postId } = useParams();
   const editingPost = posts.find((post) => post.id === postId);
   const isEditing = Boolean(postId);
   const [draft, setDraft] = useState(loadDraft);
   const [mode, setMode] = useState('write');
+
+  // Check if user can edit this post
+  const canEditPost = canEdit && isEditing && canEdit(postId);
 
   const wordCount = useMemo(() => {
     return draft.content.trim().split(/\s+/).filter(Boolean).length;
@@ -56,18 +61,20 @@ export default function CreatePostPage({ onCreatePost, onUpdatePost, posts = [] 
       return;
     }
 
+    // Check permission before loading
+    if (canEdit && !canEdit(postId)) {
+      return;
+    }
+
     setDraft({
       title: editingPost.title || '',
       excerpt: editingPost.excerpt || '',
       content: editingPost.content || '',
       category: editingPost.category || categories[0],
       image: editingPost.image || '',
-      authorName: editingPost.author || '',
-      authorBio: editingPost.authorBio || '',
-      authorInitials: editingPost.authorInitials || '',
     });
     setMode('write');
-  }, [editingPost, isEditing]);
+  }, [editingPost, isEditing, canEdit, postId]);
 
   const handleImageUpload = (event) => {
     const file = event.target.files?.[0];
@@ -86,7 +93,7 @@ export default function CreatePostPage({ onCreatePost, onUpdatePost, posts = [] 
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    if (!draft.title.trim() || !draft.content.trim() || !draft.authorName.trim()) return;
+    if (!draft.title.trim() || !draft.content.trim()) return;
 
     const postPayload = {
       title: draft.title.trim(),
@@ -94,9 +101,6 @@ export default function CreatePostPage({ onCreatePost, onUpdatePost, posts = [] 
       content: draft.content.trim(),
       category: draft.category,
       image: draft.image || fallbackImage,
-      author: draft.authorName.trim() || 'Guest Writer',
-      authorBio: draft.authorBio.trim() || 'Writer on Echo',
-      authorInitials: draft.authorInitials.trim().toUpperCase(),
     };
 
     if (isEditing) {
@@ -129,13 +133,46 @@ export default function CreatePostPage({ onCreatePost, onUpdatePost, posts = [] 
     );
   }
 
+  if (isEditing && editingPost && canEdit && !canEditPost) {
+    return (
+      <PageTransition>
+        <section className="page-shell grid min-h-[70vh] place-items-center py-12 text-center">
+          <div className="glass-panel max-w-xl rounded-[32px] p-8">
+            <p className="text-3xl font-semibold text-white">You cannot edit this post</p>
+            <p className="mt-3 text-white/58">Only the author can edit their own posts.</p>
+            <Link
+              to={`/post/${postId}`}
+              className="mt-6 inline-flex rounded-full bg-white px-6 py-3 font-semibold text-black"
+            >
+              Back to post
+            </Link>
+          </div>
+        </section>
+      </PageTransition>
+    );
+  }
+
   return (
     <PageTransition>
-      <section className="page-shell py-12">
+      <section className="page-shell py-14">
+        <div className="page-enter mb-8 max-w-3xl">
+          <p className="font-web mb-3 text-xs font-black uppercase tracking-[0.28em] text-white/50">
+            Curate content
+          </p>
+          <h1 className="font-web text-balance text-5xl font-black uppercase tracking-[-0.08em] text-white md:text-7xl">
+            {isEditing ? 'Update your post.' : 'Create an admin post.'}
+          </h1>
+          <p className="mt-5 text-lg leading-8 text-white/58">
+            {isEditing
+              ? 'Edit and publish your updates to the platform.'
+              : 'As the site admin, curate and publish posts directly to the feed.'}
+          </p>
+        </div>
+
         <form onSubmit={handleSubmit} className="grid gap-7 xl:grid-cols-[1fr_380px]">
           <div className="glass-panel rounded-[34px] p-6 md:p-9">
             <div className="mb-7 flex flex-col justify-between gap-4 md:flex-row md:items-center">
-              <p className="text-sm font-semibold uppercase tracking-[0.28em] text-[#4ecdc4]">
+              <p className="font-web text-xs font-black uppercase tracking-[0.28em] text-white/50">
                 {isEditing ? 'Update your writing' : 'Before publishing'}
               </p>
               <div className="inline-flex rounded-full border border-white/10 bg-black/20 p-1">
@@ -166,7 +203,7 @@ export default function CreatePostPage({ onCreatePost, onUpdatePost, posts = [] 
               <>
                 <label
                   htmlFor="title"
-                  className="mb-4 block text-4xl font-semibold text-white md:text-6xl"
+                  className="font-web mb-4 block text-4xl font-black uppercase tracking-[-0.06em] text-white md:text-6xl"
                 >
                   What's your heading?
                 </label>
@@ -175,7 +212,7 @@ export default function CreatePostPage({ onCreatePost, onUpdatePost, posts = [] 
                   value={draft.title}
                   onChange={(event) => updateDraft('title', event.target.value)}
                   placeholder="A title that pulls the room closer"
-                  className="w-full border-0 border-b border-white/12 bg-transparent pb-5 text-4xl font-semibold tracking-tight text-white outline-none placeholder:text-white/20 focus:border-white/45 md:text-6xl"
+                  className="font-web w-full border-0 border-b border-white/20 bg-transparent pb-5 text-4xl font-black tracking-[-0.06em] text-white outline-none placeholder:text-white/20 focus:border-white/60 md:text-6xl"
                   required
                 />
 
@@ -220,12 +257,12 @@ export default function CreatePostPage({ onCreatePost, onUpdatePost, posts = [] 
                   {draft.excerpt || 'Your post description will appear here.'}
                 </p>
                 <div className="mt-7 flex items-center gap-3 text-left">
-                  <div className="grid h-12 w-12 place-items-center rounded-full bg-white text-sm font-black text-black">
-                    {draft.authorInitials || draft.authorName.trim().charAt(0).toUpperCase() || 'G'}
+                  <div className="grid h-12 w-12 place-items-center rounded-full bg-gradient-to-br from-amber-400 to-amber-600 text-sm font-black text-black">
+                    A
                   </div>
                   <div>
-                    <p className="font-semibold text-white">{draft.authorName || 'Guest Writer'}</p>
-                    <p className="text-sm text-white/45">{draft.authorBio || 'Writer on Echo'}</p>
+                    <p className="font-semibold text-white">Admin</p>
+                    <p className="text-sm text-white/45">Site Administrator</p>
                   </div>
                 </div>
                 <ArticleBody
@@ -264,55 +301,18 @@ export default function CreatePostPage({ onCreatePost, onUpdatePost, posts = [] 
 
             <div className="mb-5 rounded-[26px] border border-white/10 bg-black/20 p-4">
               <div className="mb-4 flex items-center gap-3">
-                <div className="grid h-10 w-10 place-items-center rounded-full bg-white text-black">
-                  <UserRound className="h-5 w-5" />
+                <div className="grid h-10 w-10 place-items-center rounded-full bg-gradient-to-br from-amber-400 to-amber-600 text-black font-semibold">
+                  A
                 </div>
                 <div>
-                  <p className="font-semibold text-white">Blogger details</p>
-                  <p className="text-sm text-white/45">Shown on your published post</p>
+                  <p className="font-semibold text-white">Curated by Admin</p>
+                  <p className="text-sm text-white/45">Site administrator only.</p>
                 </div>
               </div>
 
-              <div className="grid gap-3">
-                <label className="grid gap-2">
-                  <span className="text-xs font-semibold uppercase tracking-[0.2em] text-white/38">
-                    Blogger name
-                  </span>
-                  <input
-                    value={draft.authorName}
-                    onChange={(event) => updateDraft('authorName', event.target.value)}
-                    placeholder="Your name"
-                    className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-white outline-none placeholder:text-white/28 focus:border-white/35"
-                    required
-                  />
-                </label>
-
-                <label className="grid gap-2">
-                  <span className="text-xs font-semibold uppercase tracking-[0.2em] text-white/38">
-                    Short bio
-                  </span>
-                  <input
-                    value={draft.authorBio}
-                    onChange={(event) => updateDraft('authorBio', event.target.value)}
-                    placeholder="Psychology writer, student, founder..."
-                    className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-white outline-none placeholder:text-white/28 focus:border-white/35"
-                  />
-                </label>
-
-                <label className="grid gap-2">
-                  <span className="text-xs font-semibold uppercase tracking-[0.2em] text-white/38">
-                    Initials
-                  </span>
-                  <input
-                    value={draft.authorInitials}
-                    onChange={(event) =>
-                      updateDraft('authorInitials', event.target.value.slice(0, 2).toUpperCase())
-                    }
-                    placeholder="EW"
-                    className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-white uppercase outline-none placeholder:text-white/28 focus:border-white/35"
-                  />
-                </label>
-              </div>
+              <p className="text-sm leading-6 text-white/55">
+                Your posts will appear marked as Admin on the platform, maintaining full editorial control.
+              </p>
             </div>
 
             <div className="grid gap-3">
@@ -364,9 +364,9 @@ export default function CreatePostPage({ onCreatePost, onUpdatePost, posts = [] 
             <button
               type="submit"
               className="mt-6 inline-flex w-full items-center justify-center gap-3 rounded-full bg-white px-6 py-4 font-semibold text-black transition hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-50"
-              disabled={!draft.title.trim() || !draft.content.trim() || !draft.authorName.trim()}
+              disabled={!draft.title.trim() || !draft.content.trim()}
             >
-              {isEditing ? 'Update writing' : 'Publish locally'}
+              {isEditing ? 'Update admin post' : 'Publish admin post'}
               <Send className="h-4 w-4" />
             </button>
 
@@ -376,7 +376,7 @@ export default function CreatePostPage({ onCreatePost, onUpdatePost, posts = [] 
               className="mt-3 inline-flex w-full items-center justify-center gap-3 rounded-full border border-white/10 bg-white/[0.04] px-6 py-4 font-semibold text-white/62 transition hover:border-white/24 hover:text-white"
             >
               <RotateCcw className="h-4 w-4" />
-              {isEditing ? 'Clear form' : 'Clear draft'}
+              {isEditing ? 'Reset form' : 'Start over'}
             </button>
           </aside>
         </form>

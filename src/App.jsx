@@ -9,23 +9,31 @@ import { usePosts } from './hooks/usePosts.js';
 
 export default function App() {
   const postsState = usePosts();
+  const currentUserId = postsState.ADMIN_ID; // User is always admin (site owner)
 
   return (
     <AppLayout>
       <Routes>
         <Route path="/" element={<LandingPage posts={postsState.posts} />} />
         <Route path="/feed" element={<HomeFeedPage posts={postsState.posts} />} />
-          <Route
-            path="/create"
-            element={<CreatePostPage onCreatePost={postsState.createPost} />}
-          />
+        <Route
+          path="/create"
+          element={
+            <CreatePostPage
+              onCreatePost={(post) => postsState.createPost(post, currentUserId)}
+            />
+          }
+        />
         <Route
           path="/edit/:postId"
           element={
             <CreatePostPage
               posts={postsState.posts}
-              onCreatePost={postsState.createPost}
-              onUpdatePost={postsState.updatePost}
+              onCreatePost={(post) => postsState.createPost(post, currentUserId)}
+              onUpdatePost={(postId, updates) =>
+                postsState.updatePost(postId, updates, currentUserId)
+              }
+              canEdit={(postId) => postsState.canEditPost(postId, currentUserId)}
             />
           }
         />
@@ -34,7 +42,10 @@ export default function App() {
           element={
             <BlogDetailPage
               posts={postsState.posts}
-              onDeletePost={postsState.deletePost}
+              onDeletePost={(postId) => postsState.deletePost(postId, currentUserId)}
+              canEdit={(postId) => postsState.canEditPost(postId, currentUserId)}
+              canDelete={(postId) => postsState.canDeletePost(postId, currentUserId)}
+              currentUserId={currentUserId}
             />
           }
         />

@@ -19,17 +19,24 @@ export default function HomeFeedPage({ posts }) {
     });
   }, [category, posts, query]);
 
+  const adminPostCount = posts.filter((p) => p.ownerId === 'admin-owner').length;
+
   return (
     <PageTransition>
       <section className="page-shell py-14">
         <div className="mb-9 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
           <div>
-            <p className="mb-3 text-sm font-semibold uppercase tracking-[0.28em] text-[#ff6b6b]">
+            <p className="font-web mb-3 text-xs font-black uppercase tracking-[0.28em] text-white/50">
               Home feed
             </p>
-            <h1 className="text-balance text-5xl font-semibold tracking-tight text-white md:text-7xl">
+            <h1 className="font-web text-balance text-5xl font-black uppercase tracking-[-0.08em] text-white md:text-7xl">
               Fresh echoes from the room.
             </h1>
+            {adminPostCount > 0 && (
+              <p className="mt-3 text-sm text-white/58">
+                {posts.length} {posts.length === 1 ? 'post' : 'posts'} curated by admin
+              </p>
+            )}
           </div>
           <label className="flex h-14 min-w-0 items-center gap-3 rounded-full border border-white/10 bg-white/[0.06] px-5 text-white/65 md:w-80">
             <Search className="h-5 w-5 shrink-0" />
@@ -59,8 +66,14 @@ export default function HomeFeedPage({ posts }) {
         ) : (
           <div className="glass-panel grid min-h-80 place-items-center rounded-[32px] p-10 text-center">
             <div>
-              <p className="text-2xl font-semibold text-white">No posts found</p>
-              <p className="mt-3 text-white/58">Try a different search or category.</p>
+              <p className="font-display text-3xl font-semibold text-white">
+                {posts.length === 0 ? 'No posts yet' : 'No posts found'}
+              </p>
+              <p className="mt-3 text-white/58">
+                {posts.length === 0
+                  ? 'Start creating content to build the echo chamber.'
+                  : 'Try a different search or category.'}
+              </p>
             </div>
           </div>
         )}

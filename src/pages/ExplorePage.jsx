@@ -28,11 +28,11 @@ export default function ExplorePage({ posts }) {
     <PageTransition>
       <section className="page-shell py-14">
         <div className="mb-10 max-w-3xl">
-          <p className="mb-3 flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.28em] text-[#4ecdc4]">
+          <p className="font-web mb-3 flex items-center gap-2 text-xs font-black uppercase tracking-[0.28em] text-white/50">
             <Compass className="h-4 w-4" />
             Explore
           </p>
-          <h1 className="text-balance text-5xl font-semibold tracking-tight text-white md:text-7xl">
+          <h1 className="font-web text-balance text-5xl font-black uppercase tracking-[-0.08em] text-white md:text-7xl">
             Browse by mood, topic, and intent.
           </h1>
         </div>
@@ -49,7 +49,7 @@ export default function ExplorePage({ posts }) {
                 <p className="text-sm font-semibold uppercase tracking-[0.24em] text-white/38">
                   {count} {count === 1 ? 'post' : 'posts'}
                 </p>
-                <h2 className="mt-8 text-3xl font-semibold text-white">{category}</h2>
+                <h2 className="font-web mt-8 text-3xl font-black uppercase text-white">{category}</h2>
                 <p className="mt-4 text-white/55">
                   {categoryDescriptions[category] || `Stories and essays about ${category.toLowerCase()}.`}
                 </p>

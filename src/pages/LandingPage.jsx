@@ -9,58 +9,120 @@ export default function LandingPage({ posts }) {
 
   return (
     <PageTransition>
-      <section className="relative overflow-hidden">
-        <div className="hero-grid absolute inset-0" />
-        <div className="page-shell relative grid min-h-[calc(100vh-80px)] items-center gap-12 py-16 lg:grid-cols-[1.03fr_0.97fr]">
-          <div>
-            <div className="mb-7 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.06] px-4 py-2 text-sm text-white/72 backdrop-blur-xl">
-              <Sparkles className="h-4 w-4 text-[#4ecdc4]" />
-              Write, publish, and browse locally
-            </div>
-            <h1 className="text-balance text-6xl font-semibold tracking-tight text-white sm:text-7xl lg:text-8xl">
-              Echo
-            </h1>
-            <p className="mt-7 max-w-2xl text-xl leading-9 text-white/64">
-              A cinematic writing room for thoughts, essays, journals, and ideas
-              that deserve a beautiful first draft.
-            </p>
-            <div className="mt-9 flex flex-col gap-4 sm:flex-row">
-              <Link
-                to="/create"
-                className="inline-flex items-center justify-center gap-3 rounded-full bg-white px-7 py-4 font-semibold text-black transition hover:scale-[1.03]"
-              >
-                Start writing
-                <PenLine className="h-5 w-5" />
-              </Link>
-              <Link
-                to="/feed"
-                className="inline-flex items-center justify-center gap-3 rounded-full border border-white/10 bg-white/[0.06] px-7 py-4 font-semibold text-white transition hover:border-white/24"
-              >
-                Browse posts
-                <ArrowRight className="h-5 w-5" />
-              </Link>
-            </div>
-          </div>
-
-          <div className="glass-panel rounded-[34px] p-4">
-            <div className="overflow-hidden rounded-[26px] bg-[#0d0d10]">
-              <img
-                src="https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=1200&q=80"
-                alt=""
-                className="h-80 w-full object-cover"
-              />
-              <div className="p-6">
-                <div className="mb-5 flex items-center gap-2 text-sm text-white/54">
-                  <span className="h-2 w-2 rounded-full bg-[#4ecdc4]" />
-                  Drafting now
+      <section className="relative overflow-hidden pt-12">
+        <div className="page-shell relative min-h-[calc(100vh-96px)] py-10">
+          <div className="webcore-frame scanlines mx-auto max-w-4xl overflow-hidden rounded-sm p-3">
+            <div className="grid gap-2">
+              <div className="webcore-panel static-surface overflow-hidden rounded-sm p-3">
+                <div className="grid min-h-44 items-end rounded-sm border border-white/70 bg-black p-5 md:min-h-52">
+                  <div>
+                    <p className="font-web mb-3 text-xs uppercase tracking-[0.34em] text-white/58">
+                      anonymous blogging site / local signal / no account
+                    </p>
+                    <h1 className="font-web text-5xl font-black uppercase leading-[0.9] tracking-[-0.08em] text-white md:text-7xl">
+                      ECHO
+                    </h1>
+                    <p className="font-display mt-3 max-w-2xl text-3xl font-semibold leading-tight text-white md:text-5xl">
+                      Write what the internet was never supposed to keep.
+                    </p>
+                  </div>
                 </div>
-                <h2 className="text-3xl font-semibold leading-tight text-white">
-                  What's your heading?
-                </h2>
-                <p className="mt-4 text-white/58">
-                  Echo starts every post by asking for the idea first, then gives
-                  the rest of the page room to unfold.
-                </p>
+              </div>
+
+              <div className="webcore-strip font-web flex items-center justify-between gap-4 px-3 py-2 text-[11px] uppercase tracking-[0.18em] text-white/70">
+                <span>site created :: after midnight</span>
+                <span className="hidden sm:inline">status :: anonymous</span>
+                <span>entries :: {posts.length}</span>
+              </div>
+
+              <div className="grid gap-2 lg:grid-cols-[190px_1fr_160px]">
+                <aside className="webcore-panel rounded-sm p-3">
+                  <span className="webcore-label">about echo</span>
+                  <div className="font-web mt-4 grid gap-2 text-sm font-bold uppercase text-white">
+                    <Link to="/feed" className="border border-white/20 bg-white/5 px-2 py-2 hover:bg-white hover:text-black">
+                      homepage
+                    </Link>
+                    <Link to="/create" className="border border-white/20 bg-white/5 px-2 py-2 hover:bg-white hover:text-black">
+                      write
+                    </Link>
+                    <Link to="/explore" className="border border-white/20 bg-white/5 px-2 py-2 hover:bg-white hover:text-black">
+                      categories
+                    </Link>
+                  </div>
+
+                  <span className="webcore-label mt-5">web shit</span>
+                  <div className="mt-3 grid grid-cols-2 gap-2">
+                    {['anon', 'diary', 'tech', 'life'].map((item) => (
+                      <span
+                        key={item}
+                        className="font-web border border-white/30 bg-black px-2 py-1 text-center text-xs uppercase text-white/70"
+                      >
+                        {item}
+                      </span>
+                    ))}
+                  </div>
+                </aside>
+
+                <div className="grid gap-2">
+                  <div className="webcore-panel rounded-sm p-4">
+                    <div className="mb-4 flex items-center justify-between gap-3">
+                      <span className="webcore-label">prepare 4 truth</span>
+                      <Sparkles className="h-4 w-4 text-white/60" />
+                    </div>
+                    <p className="font-web text-sm leading-7 text-white/72">
+                      hii. this is a room for anonymous thoughts, half-finished diary
+                      entries, confessions, tech notes, life fragments, psychology
+                      spirals, and anything too honest for a profile page.
+                    </p>
+                  </div>
+
+                  <div className="webcore-panel rounded-sm bg-white p-5 text-center text-black">
+                    <p className="font-web text-xs uppercase tracking-[0.22em] text-black/60">
+                      no login / no username / no followers
+                    </p>
+                    <p className="font-web mt-3 text-sm">
+                      publish locally as anonymous. edit it. delete it. disappear.
+                    </p>
+                  </div>
+
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <Link
+                      to="/create"
+                      className="font-web inline-flex items-center justify-center gap-3 border-2 border-white bg-white px-5 py-4 text-sm font-black uppercase text-black transition hover:bg-black hover:text-white"
+                    >
+                      Write anonymously
+                      <PenLine className="h-4 w-4" />
+                    </Link>
+                    <Link
+                      to="/feed"
+                      className="font-web inline-flex items-center justify-center gap-3 border-2 border-white bg-black px-5 py-4 text-sm font-black uppercase text-white transition hover:bg-white hover:text-black"
+                    >
+                      Browse entries
+                      <ArrowRight className="h-4 w-4" />
+                    </Link>
+                  </div>
+                </div>
+
+                <aside className="webcore-panel rounded-sm p-3">
+                  <span className="webcore-label">to do list</span>
+                  <div className="font-web mt-4 space-y-3 text-xs uppercase leading-5 text-white/70">
+                    <p className="border border-white/20 bg-white/5 p-2">write the thing</p>
+                    <p className="border border-white/20 bg-white/5 p-2">do not sign it</p>
+                    <p className="border border-white/20 bg-white/5 p-2">let it echo</p>
+                  </div>
+
+                  <span className="webcore-label mt-5">webring</span>
+                  <div className="mt-3 grid grid-cols-2 gap-2">
+                    {categories.slice(0, 6).map((category) => (
+                      <span
+                        key={category}
+                        className="font-web border border-white/25 bg-white/5 px-2 py-1 text-center text-[10px] uppercase text-white/62"
+                      >
+                        {category}
+                      </span>
+                    ))}
+                  </div>
+                </aside>
               </div>
             </div>
           </div>
@@ -70,43 +132,44 @@ export default function LandingPage({ posts }) {
       <section className="page-shell py-12">
         <div className="mb-7 flex flex-col justify-between gap-4 md:flex-row md:items-end">
           <div>
-            <p className="mb-3 flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.28em] text-[#4ecdc4]">
+            <p className="font-web mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.28em] text-white/50">
               <TrendingUp className="h-4 w-4" />
-              Featured blogs
+              anonymous entries
             </p>
-            <h2 className="text-4xl font-semibold tracking-tight text-white">Editorial picks</h2>
+            <h2 className="font-display text-4xl font-semibold tracking-tight text-white">
+              Recent signals
+            </h2>
           </div>
-          <Link to="/feed" className="text-sm font-semibold text-white/68 hover:text-white">
-            View all posts
+          <Link to="/feed" className="font-web text-xs font-bold uppercase tracking-[0.18em] text-white/58 hover:text-white">
+            View all
           </Link>
         </div>
-        <div className="grid gap-5 md:grid-cols-2">
-          {featuredPosts.map((post) => (
-            <BlogCard key={post.id} post={post} />
-          ))}
-        </div>
-      </section>
 
-      <section className="page-shell py-14">
-        <div className="glass-panel rounded-[32px] p-6 md:p-8">
-          <div className="mb-6 flex items-center justify-between gap-4">
-            <h2 className="text-2xl font-semibold text-white">Trending categories</h2>
-            <Link to="/explore" className="text-sm font-semibold text-white/58 hover:text-white">
-              Explore
-            </Link>
-          </div>
-          <div className="flex flex-wrap gap-3">
-            {categories.map((category) => (
-              <Link
-                key={category}
-                to="/explore"
-                className="rounded-full border border-white/10 bg-white/[0.06] px-5 py-3 text-sm font-medium text-white/72 transition hover:-translate-y-0.5 hover:border-white/24 hover:text-white"
-              >
-                {category}
-              </Link>
+        {featuredPosts.length > 0 ? (
+          <div className="grid gap-5 md:grid-cols-2">
+            {featuredPosts.map((post) => (
+              <BlogCard key={post.id} post={post} />
             ))}
           </div>
-        </div>
+        ) : (
+          <div className="webcore-frame grid min-h-64 place-items-center rounded-sm p-8 text-center">
+            <div className="max-w-xl">
+              <p className="font-web text-3xl font-black uppercase text-white">
+                no anonymous posts yet
+              </p>
+              <p className="mt-4 text-white/58">
+                Be the first signal in the room. No characters, no profiles, no names.
+              </p>
+              <Link
+                to="/create"
+                className="font-web mt-6 inline-flex items-center justify-center gap-3 border-2 border-white bg-white px-6 py-3 text-sm font-black uppercase text-black transition hover:bg-black hover:text-white"
+              >
+                Write anonymously
+                <PenLine className="h-4 w-4" />
+              </Link>
+            </div>
+          </div>
+        )}
       </section>
     </PageTransition>
   );
