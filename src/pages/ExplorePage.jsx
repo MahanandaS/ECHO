@@ -26,32 +26,37 @@ const categoryDescriptions = {
 export default function ExplorePage({ posts }) {
   return (
     <PageTransition>
-      <section className="page-shell py-14">
-        <div className="mb-10 max-w-3xl">
-          <p className="font-web mb-3 flex items-center gap-2 text-xs font-black uppercase tracking-[0.28em] text-white/50">
+      <section className="page-shell py-16">
+        <div className="mb-16 max-w-3xl">
+          <p className="mb-4 flex items-center gap-2 text-xs tracking-widest text-echo-light/50">
             <Compass className="h-4 w-4" />
-            Explore
+            EXPLORE
           </p>
-          <h1 className="font-web text-balance text-5xl font-black uppercase tracking-[-0.08em] text-white md:text-7xl">
-            Browse by mood, topic, and intent.
+          <h1 className="font-serif-display text-5xl md:text-6xl text-echo-light">
+            Browse by Category
           </h1>
+          <p className="mt-4 text-lg text-echo-light/70 font-serif-text">
+            Discover essays organized by mood, topic, and interest.
+          </p>
         </div>
 
-        <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {categories.map((category) => {
             const count = posts.filter((post) => post.category === category).length;
             return (
               <Link
                 key={category}
                 to="/feed"
-                className="glass-panel group rounded-[30px] p-6 transition hover:-translate-y-1 hover:border-white/24"
+                className="border border-echo-light/10 p-6 hover:border-echo-light/30 transition group"
               >
-                <p className="text-sm font-semibold uppercase tracking-[0.24em] text-white/38">
-                  {count} {count === 1 ? 'post' : 'posts'}
+                <p className="text-xs font-serif-text tracking-wider text-echo-light/50 mb-4">
+                  {count} {count === 1 ? 'essay' : 'essays'}
                 </p>
-                <h2 className="font-web mt-8 text-3xl font-black uppercase text-white">{category}</h2>
-                <p className="mt-4 text-white/55">
-                  {categoryDescriptions[category] || `Stories and essays about ${category.toLowerCase()}.`}
+                <h2 className="font-serif-display text-2xl text-echo-light mb-3 group-hover:text-echo-light/90 transition">
+                  {category}
+                </h2>
+                <p className="text-echo-light/65 font-serif-text text-sm leading-relaxed">
+                  {categoryDescriptions[category] || `Essays and reflections about ${category.toLowerCase()}.`}
                 </p>
               </Link>
             );

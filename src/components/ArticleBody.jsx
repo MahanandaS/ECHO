@@ -7,7 +7,7 @@ function renderLine(line, index) {
 
   if (trimmedLine.startsWith('### ')) {
     return (
-      <h3 key={`${trimmedLine}-${index}`} className="mb-4 mt-8 text-2xl font-semibold text-white">
+      <h3 key={`${trimmedLine}-${index}`} className="mb-4 mt-8 text-xl font-serif-display text-echo-light">
         {trimmedLine.replace(/^###\s+/, '')}
       </h3>
     );
@@ -15,7 +15,7 @@ function renderLine(line, index) {
 
   if (trimmedLine.startsWith('## ')) {
     return (
-      <h2 key={`${trimmedLine}-${index}`} className="mb-5 mt-10 text-3xl font-semibold text-white">
+      <h2 key={`${trimmedLine}-${index}`} className="mb-5 mt-10 text-2xl font-serif-display text-echo-light">
         {trimmedLine.replace(/^##\s+/, '')}
       </h2>
     );
@@ -23,14 +23,14 @@ function renderLine(line, index) {
 
   if (trimmedLine.startsWith('# ')) {
     return (
-      <h2 key={`${trimmedLine}-${index}`} className="mb-5 mt-10 text-4xl font-semibold text-white">
+      <h2 key={`${trimmedLine}-${index}`} className="mb-5 mt-10 text-3xl font-serif-display text-echo-light">
         {trimmedLine.replace(/^#\s+/, '')}
       </h2>
     );
   }
 
   return (
-    <p key={`${trimmedLine}-${index}`} className="mb-7">
+    <p key={`${trimmedLine}-${index}`} className="mb-7 font-serif-text">
       {trimmedLine}
     </p>
   );

@@ -3,10 +3,10 @@ export default function CategoryPill({ children, active = false, onClick }) {
     <button
       type="button"
       onClick={onClick}
-      className={`rounded-full border px-4 py-2 text-sm font-medium transition ${
+      className={`border px-4 py-2 text-sm font-serif-text transition ${
         active
-          ? 'border-white bg-white text-black'
-          : 'border-white/10 bg-white/[0.06] text-white/72 hover:border-white/25 hover:text-white'
+          ? 'border-echo-light bg-echo-light text-echo-dark'
+          : 'border-echo-light/20 text-echo-light/70 hover:border-echo-light/50 hover:text-echo-light'
       }`}
     >
       {children}

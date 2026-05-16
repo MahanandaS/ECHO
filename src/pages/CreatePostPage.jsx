@@ -15,6 +15,8 @@ const defaultDraft = {
   content: '',
   category: categories[0],
   image: '',
+  authorName: '',
+  authorBio: '',
 };
 
 const loadDraft = () => {
@@ -31,7 +33,9 @@ export default function CreatePostPage({
   onUpdatePost,
   posts = [],
   canEdit,
+  user,
 }) {
+  const currentUserName = user?.name || localStorage.getItem("currentUser") || "Anonymous";
   const navigate = useNavigate();
   const { postId } = useParams();
   const editingPost = posts.find((post) => post.id === postId);
@@ -93,7 +97,10 @@ export default function CreatePostPage({
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    if (!draft.title.trim() || !draft.content.trim()) return;
+    if (!draft.title.trim() || !draft.content.trim() || !draft.authorName.trim()) {
+      alert('Please fill in title, content, and author name');
+      return;
+    }
 
     const postPayload = {
       title: draft.title.trim(),
@@ -101,6 +108,9 @@ export default function CreatePostPage({
       content: draft.content.trim(),
       category: draft.category,
       image: draft.image || fallbackImage,
+      author: draft.authorName.trim(),
+      authorBio: draft.authorBio.trim() || 'Writer',
+      authorInitials: draft.authorName.trim().charAt(0).toUpperCase(),
     };
 
     if (isEditing) {
@@ -118,14 +128,14 @@ export default function CreatePostPage({
     return (
       <PageTransition>
         <section className="page-shell grid min-h-[70vh] place-items-center py-12 text-center">
-          <div className="glass-panel max-w-xl rounded-[32px] p-8">
-            <p className="text-3xl font-semibold text-white">Post not found</p>
-            <p className="mt-3 text-white/58">This writing may have already been deleted.</p>
+          <div className="max-w-xl p-8">
+            <p className="font-serif-display text-3xl text-echo-light">Essay not found</p>
+            <p className="mt-3 text-echo-light/60 font-serif-text">This essay may have already been deleted.</p>
             <Link
               to="/feed"
-              className="mt-6 inline-flex rounded-full bg-white px-6 py-3 font-semibold text-black"
+              className="mt-6 inline-flex bg-echo-light text-echo-dark px-6 py-3 font-serif-text"
             >
-              Back to feed
+              Back to Essays
             </Link>
           </div>
         </section>
@@ -137,14 +147,14 @@ export default function CreatePostPage({
     return (
       <PageTransition>
         <section className="page-shell grid min-h-[70vh] place-items-center py-12 text-center">
-          <div className="glass-panel max-w-xl rounded-[32px] p-8">
-            <p className="text-3xl font-semibold text-white">You cannot edit this post</p>
-            <p className="mt-3 text-white/58">Only the author can edit their own posts.</p>
+          <div className="max-w-xl p-8">
+            <p className="font-serif-display text-3xl text-echo-light">You cannot edit this essay</p>
+            <p className="mt-3 text-echo-light/60 font-serif-text">Only the author can edit their own essays.</p>
             <Link
               to={`/post/${postId}`}
-              className="mt-6 inline-flex rounded-full bg-white px-6 py-3 font-semibold text-black"
+              className="mt-6 inline-flex bg-echo-light text-echo-dark px-6 py-3 font-serif-text"
             >
-              Back to post
+              Back to Essay
             </Link>
           </div>
         </section>
@@ -154,46 +164,39 @@ export default function CreatePostPage({
 
   return (
     <PageTransition>
-      <section className="page-shell py-14">
-        <div className="page-enter mb-8 max-w-3xl">
-          <p className="font-web mb-3 text-xs font-black uppercase tracking-[0.28em] text-white/50">
-            Curate content
-          </p>
-          <h1 className="font-web text-balance text-5xl font-black uppercase tracking-[-0.08em] text-white md:text-7xl">
-            {isEditing ? 'Update your post.' : 'Create an admin post.'}
+      <section className="page-shell py-16">
+        <div className="mb-12 max-w-3xl">
+          <h1 className="font-serif-display text-5xl md:text-6xl text-echo-light mb-4">
+            {isEditing ? 'Update Essay' : 'Write an Essay'}
           </h1>
-          <p className="mt-5 text-lg leading-8 text-white/58">
+          <p className="text-lg leading-8 text-echo-light/70 font-serif-text">
             {isEditing
-              ? 'Edit and publish your updates to the platform.'
-              : 'As the site admin, curate and publish posts directly to the feed.'}
+              ? 'Refine and republish your thoughts.'
+              : 'Share your contemplations with the world.'}
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="grid gap-7 xl:grid-cols-[1fr_380px]">
-          <div className="glass-panel rounded-[34px] p-6 md:p-9">
-            <div className="mb-7 flex flex-col justify-between gap-4 md:flex-row md:items-center">
-              <p className="font-web text-xs font-black uppercase tracking-[0.28em] text-white/50">
-                {isEditing ? 'Update your writing' : 'Before publishing'}
-              </p>
-              <div className="inline-flex rounded-full border border-white/10 bg-black/20 p-1">
+        <form onSubmit={handleSubmit} className="grid gap-8 xl:grid-cols-[1fr_320px]">
+          <div className="border border-echo-light/10 p-8">
+            <div className="mb-8 flex flex-col justify-between gap-4 md:flex-row md:items-center">
+              <p className="text-xs tracking-widest text-echo-light/50">COMPOSE YOUR ESSAY</p>
+              <div className="flex border border-echo-light/20">
                 <button
                   type="button"
                   onClick={() => setMode('write')}
-                  className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition ${
-                    mode === 'write' ? 'bg-white text-black' : 'text-white/58 hover:text-white'
+                  className={`px-4 py-2 text-sm font-serif-text transition ${
+                    mode === 'write' ? 'bg-echo-light text-echo-dark' : 'text-echo-light/60 hover:text-echo-light'
                   }`}
                 >
-                  <PenLine className="h-4 w-4" />
                   Write
                 </button>
                 <button
                   type="button"
                   onClick={() => setMode('preview')}
-                  className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition ${
-                    mode === 'preview' ? 'bg-white text-black' : 'text-white/58 hover:text-white'
+                  className={`px-4 py-2 text-sm font-serif-text transition border-l border-echo-light/20 ${
+                    mode === 'preview' ? 'bg-echo-light text-echo-dark' : 'text-echo-light/60 hover:text-echo-light'
                   }`}
                 >
-                  <Eye className="h-4 w-4" />
                   Preview
                 </button>
               </div>
@@ -203,143 +206,166 @@ export default function CreatePostPage({
               <>
                 <label
                   htmlFor="title"
-                  className="font-web mb-4 block text-4xl font-black uppercase tracking-[-0.06em] text-white md:text-6xl"
+                  className="font-serif-display text-3xl md:text-4xl text-echo-light mb-6 block"
                 >
-                  What's your heading?
+                  Essay Title
                 </label>
                 <input
                   id="title"
                   value={draft.title}
                   onChange={(event) => updateDraft('title', event.target.value)}
-                  placeholder="A title that pulls the room closer"
-                  className="font-web w-full border-0 border-b border-white/20 bg-transparent pb-5 text-4xl font-black tracking-[-0.06em] text-white outline-none placeholder:text-white/20 focus:border-white/60 md:text-6xl"
+                  placeholder="Your compelling essay title"
+                  className="w-full border-0 border-b border-echo-light/20 bg-transparent pb-4 text-3xl md:text-4xl font-serif-display text-echo-light outline-none placeholder:text-echo-light/30 focus:border-echo-light/60"
                   required
                 />
 
-                <div className="mt-10 grid gap-6">
+                <div className="mt-10 grid gap-8">
                   <label className="grid gap-3">
-                    <span className="text-sm font-semibold uppercase tracking-[0.22em] text-white/45">
-                      Description
+                    <span className="text-sm font-serif-text tracking-wider text-echo-light/60">
+                      EXCERPT
                     </span>
                     <textarea
                       value={draft.excerpt}
                       onChange={(event) => updateDraft('excerpt', event.target.value)}
                       rows="3"
-                      placeholder="A short preview for the feed"
-                      className="resize-none rounded-[24px] border border-white/10 bg-black/20 p-5 text-white outline-none placeholder:text-white/28 focus:border-white/35"
+                      placeholder="A brief preview of your essay"
+                      className="border border-echo-light/10 bg-echo-dark/30 p-4 text-echo-light outline-none placeholder:text-echo-light/30 focus:border-echo-light/40 font-serif-text"
                     />
                   </label>
 
                   <label className="grid gap-3">
-                    <span className="text-sm font-semibold uppercase tracking-[0.22em] text-white/45">
-                      Content
+                    <span className="text-sm font-serif-text tracking-wider text-echo-light/60">
+                      CONTENT
                     </span>
                     <textarea
                       value={draft.content}
                       onChange={(event) => updateDraft('content', event.target.value)}
-                      rows="12"
-                      placeholder="Use #, ##, or ### at the start of a line to add headings."
-                      className="resize-y rounded-[24px] border border-white/10 bg-black/20 p-5 text-lg leading-8 text-white outline-none placeholder:text-white/28 focus:border-white/35"
+                      rows="16"
+                      placeholder="Begin your essay. Use #, ##, or ### for headings."
+                      className="border border-echo-light/10 bg-echo-dark/30 p-4 text-lg leading-8 text-echo-light outline-none placeholder:text-echo-light/30 focus:border-echo-light/40 font-serif-text"
                       required
                     />
                   </label>
+
+                  <div className="border-t border-echo-light/10 pt-8">
+                    <p className="mb-6 text-sm font-serif-text tracking-wider text-echo-light/60">
+                      AUTHOR INFORMATION
+                    </p>
+                    <label className="grid gap-3 mb-6">
+                      <span className="text-xs font-serif-text tracking-wider text-echo-light/60">
+                        AUTHOR NAME
+                      </span>
+                      <input
+                        value={draft.authorName}
+                        onChange={(event) => updateDraft('authorName', event.target.value)}
+                        placeholder="Your name"
+                        className="border border-echo-light/10 bg-echo-dark/30 px-4 py-3 text-echo-light outline-none placeholder:text-echo-light/30 focus:border-echo-light/40 font-serif-text"
+                        required
+                      />
+                    </label>
+
+                    <label className="grid gap-3">
+                      <span className="text-xs font-serif-text tracking-wider text-echo-light/60">
+                        AUTHOR BIO
+                      </span>
+                      <textarea
+                        value={draft.authorBio}
+                        onChange={(event) => updateDraft('authorBio', event.target.value)}
+                        rows="2"
+                        placeholder="Brief description about yourself"
+                        className="border border-echo-light/10 bg-echo-dark/30 px-4 py-3 text-echo-light outline-none placeholder:text-echo-light/30 focus:border-echo-light/40 font-serif-text"
+                      />
+                    </label>
+                  </div>
                 </div>
               </>
             ) : (
-              <div className="min-h-[520px] rounded-[28px] border border-white/10 bg-black/20 p-6 md:p-8">
-                <p className="mb-4 text-sm font-semibold uppercase tracking-[0.24em] text-white/38">
-                  Preview
+              <div className="min-h-[600px] border border-echo-light/10 bg-echo-dark/20 p-8">
+                <p className="mb-6 text-sm font-serif-text tracking-wider text-echo-light/50">
+                  PREVIEW
                 </p>
-                <h1 className="text-balance text-4xl font-semibold text-white md:text-6xl">
-                  {draft.title || "What's your heading?"}
+                <h1 className="text-4xl md:text-5xl font-serif-display text-echo-light mb-6">
+                  {draft.title || "Your essay title"}
                 </h1>
-                <p className="mt-5 text-lg leading-8 text-white/58">
-                  {draft.excerpt || 'Your post description will appear here.'}
+                <p className="text-lg leading-8 text-echo-light/70 font-serif-text mb-8">
+                  {draft.excerpt || 'Your excerpt will appear here.'}
                 </p>
-                <div className="mt-7 flex items-center gap-3 text-left">
-                  <div className="grid h-12 w-12 place-items-center rounded-full bg-white text-sm font-black text-black">
-                    U
+                <div className="flex items-center gap-4 mb-8 pb-8 border-b border-echo-light/10">
+                  <div className="h-12 w-12 rounded-full bg-echo-green flex items-center justify-center text-sm font-serif-display text-echo-cream">
+                    {draft.authorName.charAt(0).toUpperCase() || 'A'}
                   </div>
                   <div>
-                    <p className="font-semibold text-white">Your Name</p>
-                    <p className="text-sm text-white/45">Blog writer</p>
+                    <p className="font-serif-text text-echo-light">{draft.authorName || 'Your Name'}</p>
+                    <p className="text-sm text-echo-light/50 font-serif-text">{draft.authorBio || 'Writer'}</p>
                   </div>
                 </div>
                 <ArticleBody
-                  content={draft.content || 'Start writing to preview your article.'}
-                  className="mt-10 text-lg leading-9 text-white/76"
+                  content={draft.content || 'Start writing to preview your essay.'}
+                  className="text-lg leading-8 text-echo-light/80 font-serif-text"
                 />
               </div>
             )}
           </div>
 
-          <aside className="glass-panel h-fit rounded-[32px] p-5">
-            <div className="relative mb-5 overflow-hidden rounded-[24px] border border-white/10 bg-black/30">
+          <aside className="h-fit border border-echo-light/10 p-6">
+            <div className="relative mb-6 overflow-hidden border border-echo-light/10 bg-echo-dark/30">
               {draft.image ? (
                 <>
                   <img src={draft.image} alt="" className="h-64 w-full object-cover" />
                   <button
                     type="button"
                     onClick={() => updateDraft('image', '')}
-                    className="absolute right-3 top-3 grid h-10 w-10 place-items-center rounded-full bg-black/55 text-white backdrop-blur-md"
+                    className="absolute right-3 top-3 h-10 w-10 rounded-full bg-echo-dark/70 text-echo-light flex items-center justify-center backdrop-blur"
                     aria-label="Remove image"
                   >
                     <X className="h-4 w-4" />
                   </button>
                 </>
               ) : (
-                <label className="grid h-64 cursor-pointer place-items-center p-6 text-center transition hover:bg-white/[0.04]">
+                <label className="grid h-64 cursor-pointer place-items-center p-6 text-center transition hover:bg-echo-light/5">
                   <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
                   <span>
-                    <ImagePlus className="mx-auto mb-4 h-8 w-8 text-white/55" />
-                    <span className="block font-semibold text-white">Add an optional image</span>
-                    <span className="mt-2 block text-sm text-white/45">Upload preview stays local</span>
+                    <ImagePlus className="mx-auto mb-3 h-6 w-6 text-echo-light/50" />
+                    <span className="block font-serif-text text-echo-light/70">Add image</span>
+                    <span className="mt-2 block text-xs text-echo-light/40">Stored locally</span>
                   </span>
                 </label>
               )}
             </div>
 
-            <div className="mb-5 rounded-[26px] border border-white/10 bg-black/20 p-4">
-              <div className="mb-4 flex items-center gap-3">
-                <div className="grid h-10 w-10 place-items-center rounded-full bg-white text-black font-semibold">
-                  U
-                </div>
-                <div>
-                  <p className="font-semibold text-white">Your story</p>
-                  <p className="text-sm text-white/45">Published under your name.</p>
-                </div>
-              </div>
-
-              <p className="text-sm leading-6 text-white/55">
-                Your post will be published to the blog feed with your name and can be edited or deleted anytime.
+            <div className="mb-6 border border-echo-light/10 bg-echo-dark/20 p-4">
+              <p className="text-xs font-serif-text tracking-wider text-echo-light/60 mb-3">PUBLISH TO</p>
+              <p className="font-serif-text text-echo-light mb-2">Echo Essays</p>
+              <p className="text-sm text-echo-light/50 font-serif-text">
+                Your essay will be visible to all readers and can be edited or removed anytime.
               </p>
             </div>
 
-            <div className="grid gap-3">
-              <span className="text-sm font-semibold uppercase tracking-[0.22em] text-white/45">
-                Category
+            <div className="mb-6">
+              <span className="text-sm font-serif-text tracking-wider text-echo-light/60 mb-3 block">
+                CATEGORY
               </span>
               <select
                 value={draft.category}
                 onChange={(event) => updateDraft('category', event.target.value)}
-                className="rounded-full border border-white/10 bg-black/30 px-5 py-4 text-white outline-none focus:border-white/35"
+                className="w-full border border-echo-light/10 bg-echo-dark/30 px-4 py-3 text-echo-light outline-none focus:border-echo-light/40 font-serif-text"
               >
                 {categories.map((item) => (
-                  <option key={item} value={item} className="bg-[#101014]">
+                  <option key={item} value={item} className="bg-echo-dark">
                     {item}
                   </option>
                 ))}
               </select>
-              <div className="flex max-h-36 flex-wrap gap-2 overflow-auto pr-1">
+              <div className="flex flex-wrap gap-2 mt-3">
                 {categories.map((item) => (
                   <button
                     key={item}
                     type="button"
                     onClick={() => updateDraft('category', item)}
-                    className={`rounded-full border px-3 py-2 text-xs font-semibold transition ${
+                    className={`border px-3 py-2 text-xs font-serif-text transition ${
                       draft.category === item
-                        ? 'border-white bg-white text-black'
-                        : 'border-white/10 bg-white/[0.04] text-white/54 hover:border-white/24 hover:text-white'
+                        ? 'border-echo-light bg-echo-light text-echo-dark'
+                        : 'border-echo-light/20 text-echo-light/60 hover:border-echo-light/50'
                     }`}
                   >
                     {item}
@@ -348,35 +374,34 @@ export default function CreatePostPage({
               </div>
             </div>
 
-            <div className="mt-5 grid grid-cols-2 gap-3">
-              <div className="rounded-3xl border border-white/10 bg-black/20 p-4">
-                <p className="text-2xl font-semibold text-white">{wordCount}</p>
-                <p className="mt-1 text-xs uppercase tracking-[0.2em] text-white/38">Words</p>
+            <div className="grid grid-cols-2 gap-3 mb-6">
+              <div className="border border-echo-light/10 bg-echo-dark/20 p-4">
+                <p className="text-2xl font-serif-display text-echo-light">{wordCount}</p>
+                <p className="mt-1 text-xs font-serif-text tracking-wider text-echo-light/50">WORDS</p>
               </div>
-              <div className="rounded-3xl border border-white/10 bg-black/20 p-4">
-                <p className="text-2xl font-semibold text-white">
+              <div className="border border-echo-light/10 bg-echo-dark/20 p-4">
+                <p className="text-2xl font-serif-display text-echo-light">
                   {Math.max(1, Math.ceil(wordCount / 180))}
                 </p>
-                <p className="mt-1 text-xs uppercase tracking-[0.2em] text-white/38">Min read</p>
+                <p className="mt-1 text-xs font-serif-text tracking-wider text-echo-light/50">READ TIME</p>
               </div>
             </div>
 
             <button
               type="submit"
-              className="mt-6 inline-flex w-full items-center justify-center gap-3 rounded-full bg-white px-6 py-4 font-semibold text-black transition hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-50"
+              className="w-full bg-echo-light text-echo-dark px-6 py-3 font-serif-text transition hover:bg-echo-cream disabled:cursor-not-allowed disabled:opacity-50 mb-3"
               disabled={!draft.title.trim() || !draft.content.trim()}
             >
-              {isEditing ? 'Update post' : 'Publish post'}
-              <Send className="h-4 w-4" />
+              {isEditing ? 'Update Essay' : 'Publish Essay'}
             </button>
 
             <button
               type="button"
               onClick={clearDraft}
-              className="mt-3 inline-flex w-full items-center justify-center gap-3 rounded-full border border-white/10 bg-white/[0.04] px-6 py-4 font-semibold text-white/62 transition hover:border-white/24 hover:text-white"
+              className="w-full border border-echo-light/20 text-echo-light/70 hover:text-echo-light px-6 py-3 font-serif-text transition hover:border-echo-light/50"
             >
-              <RotateCcw className="h-4 w-4" />
-              {isEditing ? 'Reset form' : 'Start over'}
+              <RotateCcw className="inline h-4 w-4 mr-2" />
+              {isEditing ? 'Reset' : 'Start Over'}
             </button>
           </aside>
         </form>

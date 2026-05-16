@@ -1,98 +1,98 @@
-import { ArrowRight, PenLine, Sparkles, TrendingUp } from 'lucide-react';
+import { ArrowDown } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import BlogCard from '../components/BlogCard.jsx';
 import PageTransition from '../components/PageTransition.jsx';
-import { categories } from '../data/seedPosts.js';
 
 export default function LandingPage({ posts }) {
-  const featuredPosts = posts.filter((post) => post.featured).slice(0, 2);
+  const featuredPosts = posts.filter((post) => post.featured).slice(0, 4);
 
   return (
     <PageTransition>
-      {/* Hero Section */}
-      <section className="page-shell py-20 md:py-32">
-        <div className="mx-auto max-w-3xl text-center">
-          <p className="font-web mb-4 text-xs font-black uppercase tracking-[0.34em] text-white/50">
-            Welcome to blog
-          </p>
-          <h1 className="font-web text-balance text-6xl font-black uppercase leading-[0.95] tracking-[-0.08em] text-white md:text-8xl">
-            Write Your Stories
+      {/* Cover Section */}
+      <section className="page-shell relative flex min-h-screen flex-col items-center justify-center py-20 md:py-32">
+        <div className="mx-auto max-w-4xl text-center">
+          <div className="mb-6 text-sm tracking-widest text-echo-light/60">
+            WELCOME
+          </div>
+          <h1 className="font-serif-display text-6xl md:text-8xl leading-tight text-echo-light mb-6">
+            Echo
           </h1>
-          <p className="mx-auto mt-8 max-w-2xl text-xl leading-8 text-white/70">
-            Share your thoughts, ideas, and experiences with our blogging community. Write freely, edit anytime, and connect with other writers.
+          <p className="font-serif-text text-2xl md:text-3xl text-echo-light/80 mb-12 italic">
+            Thoughts in Motion
+          </p>
+          <p className="font-serif-text text-lg text-echo-light/70 max-w-2xl mx-auto mb-12 leading-relaxed">
+            A contemplative space for writers, artists, and thinkers. Share your explorations of the human experience, the natural world, and the ideas that move you.
           </p>
           
-          <div className="mt-12 flex flex-col gap-4 sm:flex-row sm:justify-center sm:gap-5">
-            <Link
-              to="/create"
-              className="font-web inline-flex items-center justify-center gap-2 rounded-full border-2 border-white bg-white px-8 py-4 text-sm font-black uppercase text-black transition hover:scale-105"
-            >
-              <PenLine className="h-5 w-5" />
-              Start Writing
-            </Link>
+          <div className="flex flex-col gap-4 sm:flex-row sm:justify-center sm:gap-6">
             <Link
               to="/feed"
-              className="font-web inline-flex items-center justify-center gap-2 rounded-full border-2 border-white bg-transparent px-8 py-4 text-sm font-black uppercase text-white transition hover:bg-white hover:text-black"
+              className="font-serif-text inline-flex items-center justify-center gap-2 border border-echo-light text-echo-light px-8 py-3 hover:bg-echo-light hover:text-echo-dark transition"
             >
-              Browse Stories
-              <ArrowRight className="h-5 w-5" />
+              Explore Essays
+            </Link>
+            <Link
+              to="/create"
+              className="font-serif-text inline-flex items-center justify-center gap-2 bg-echo-light text-echo-dark px-8 py-3 hover:bg-echo-cream transition"
+            >
+              Begin Writing
             </Link>
           </div>
         </div>
-      </section>
 
-      {/* Stats Section */}
-      <section className="page-shell">
-        <div className="mb-20 rounded-[32px] border border-white/10 bg-white/[0.05] px-8 py-12 md:flex md:items-center md:justify-between">
-          <div className="mb-8 md:mb-0">
-            <p className="text-sm font-semibold uppercase tracking-[0.22em] text-white/50">Platform Stats</p>
-            <p className="mt-2 text-4xl font-black text-white">{posts.length}</p>
-            <p className="text-white/60">Stories published</p>
-          </div>
-          <div className="border-l border-white/10 pl-8 md:border-l md:pl-8">
-            <p className="text-sm font-semibold uppercase tracking-[0.22em] text-white/50">Get Started</p>
-            <p className="mt-3 max-w-sm text-white/70">
-              Create an account in seconds and start sharing your stories with our growing community of writers.
-            </p>
-          </div>
+        {/* Scroll indicator */}
+        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
+          <ArrowDown className="h-5 w-5 text-echo-light/40" />
         </div>
       </section>
 
-      {/* Latest Posts Section */}
-      <section className="page-shell pb-20">
-        <div className="mb-12">
-          <p className="font-web mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.28em] text-white/50">
-            <TrendingUp className="h-4 w-4" />
-            Recent posts
+      {/* Elegant divider */}
+      <div className="elegant-divider"></div>
+
+      {/* Featured Posts Section */}
+      <section className="page-shell pb-24">
+        <div className="mb-16 text-center">
+          <p className="text-xs tracking-widest text-echo-light/50 mb-4">RECENT ESSAYS</p>
+          <h2 className="font-serif-display text-4xl md:text-5xl text-echo-light mb-6">
+            Latest Thoughts
+          </h2>
+          <p className="font-serif-text text-echo-light/70 max-w-2xl mx-auto">
+            Discover contemplative essays exploring beauty, nature, memory, and the human experience.
           </p>
-          <div className="flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
-            <h2 className="font-display text-4xl font-semibold text-white">
-              Latest from the blog
-            </h2>
-            <Link to="/feed" className="font-web text-xs font-bold uppercase tracking-[0.18em] text-white/60 hover:text-white">
-              View all stories →
-            </Link>
-          </div>
         </div>
 
         {featuredPosts.length > 0 ? (
-          <div className="grid gap-6 md:grid-cols-2">
+          <div className="grid gap-12 md:grid-cols-2">
             {featuredPosts.map((post) => (
               <BlogCard key={post.id} post={post} />
             ))}
           </div>
         ) : (
-          <div className="rounded-[32px] border border-white/10 bg-white/[0.05] p-12 text-center">
-            <p className="text-3xl font-bold text-white">No stories yet</p>
-            <p className="mt-4 text-white/60">
-              Be the first to write and share a story.
-            </p>
+          <div className="glass-panel grid min-h-80 place-items-center rounded-sm p-10 text-center">
+            <div>
+              <p className="font-serif-display text-3xl text-echo-light">
+                No essays yet
+              </p>
+              <p className="mt-3 text-echo-light/60 font-serif-text">
+                Be the first to share your thoughts.
+              </p>
+              <Link
+                to="/create"
+                className="font-serif-text mt-8 inline-flex items-center justify-center gap-2 bg-echo-light text-echo-dark px-8 py-3 hover:bg-echo-cream transition"
+              >
+                Write Your Essay
+              </Link>
+            </div>
+          </div>
+        )}
+
+        {featuredPosts.length > 0 && (
+          <div className="mt-12 text-center">
             <Link
-              to="/create"
-              className="font-web mt-8 inline-flex items-center justify-center gap-2 rounded-full bg-white px-8 py-3 text-sm font-black uppercase text-black transition hover:scale-105"
+              to="/feed"
+              className="font-serif-text text-echo-light/70 hover:text-echo-light transition border-b border-echo-light/30 hover:border-echo-light pb-1"
             >
-              <PenLine className="h-4 w-4" />
-              Write your first story
+              View All Essays →
             </Link>
           </div>
         )}

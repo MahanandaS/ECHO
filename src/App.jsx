@@ -48,6 +48,7 @@ export default function App() {
           path="/create"
           element={
             <CreatePostPage
+              user={authState.user}
               onCreatePost={(post) => postsState.createPost(post, currentUserId)}
             />
           }
@@ -56,6 +57,7 @@ export default function App() {
           path="/edit/:postId"
           element={
             <CreatePostPage
+              user={authState.user}
               posts={postsState.posts}
               onCreatePost={(post) => postsState.createPost(post, currentUserId)}
               onUpdatePost={(postId, updates) =>

@@ -19,59 +19,51 @@ export default function HomeFeedPage({ posts }) {
     });
   }, [category, posts, query]);
 
-  const adminPostCount = posts.filter((p) => p.ownerId === 'admin-owner').length;
-
   return (
     <PageTransition>
-      <section className="page-shell py-14">
-        <div className="mb-9 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-          <div>
-            <p className="font-web mb-3 text-xs font-black uppercase tracking-[0.28em] text-white/50">
-              Home feed
-            </p>
-            <h1 className="font-web text-balance text-5xl font-black uppercase tracking-[-0.08em] text-white md:text-7xl">
-              Latest stories & articles.
-            </h1>
-            {adminPostCount > 0 && (
-              <p className="mt-3 text-sm text-white/58">
-                {posts.length} {posts.length === 1 ? 'post' : 'posts'} curated by admin
-              </p>
-            )}
-          </div>
-          <label className="flex h-14 min-w-0 items-center gap-3 rounded-full border border-white/10 bg-white/[0.06] px-5 text-white/65 md:w-80">
-            <Search className="h-5 w-5 shrink-0" />
+      <section className="page-shell py-20 md:py-24">
+        <div className="mb-16">
+          <p className="text-xs tracking-widest text-echo-light/50 mb-4">
+            ESSAYS
+          </p>
+          <h1 className="font-serif-display text-5xl md:text-6xl text-echo-light mb-8">
+            All Essays
+          </h1>
+          
+          <label className="flex items-center gap-3 border-b border-echo-light/20 pb-4 mb-8">
+            <Search className="h-5 w-5 text-echo-light/50" />
             <input
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="Search stories"
-              className="w-full bg-transparent text-white outline-none placeholder:text-white/36"
+              placeholder="Search essays..."
+              className="flex-1 bg-transparent text-echo-light placeholder:text-echo-light/40 outline-none font-serif-text"
             />
           </label>
-        </div>
 
-        <div className="mb-8 flex flex-wrap gap-3">
-          {['All', ...categories].map((item) => (
-            <CategoryPill key={item} active={category === item} onClick={() => setCategory(item)}>
-              {item}
-            </CategoryPill>
-          ))}
+          <div className="flex flex-wrap gap-3">
+            {['All', ...categories].map((item) => (
+              <CategoryPill key={item} active={category === item} onClick={() => setCategory(item)}>
+                {item}
+              </CategoryPill>
+            ))}
+          </div>
         </div>
 
         {filteredPosts.length > 0 ? (
-          <div className="grid auto-rows-fr gap-5 md:grid-cols-2 lg:grid-cols-3">
-            {filteredPosts.map((post, index) => (
-              <BlogCard key={post.id} post={post} large={index === 0} />
+          <div className="grid auto-rows-fr gap-16 md:grid-cols-2">
+            {filteredPosts.map((post) => (
+              <BlogCard key={post.id} post={post} />
             ))}
           </div>
         ) : (
-          <div className="glass-panel grid min-h-80 place-items-center rounded-[32px] p-10 text-center">
+          <div className="glass-panel grid min-h-80 place-items-center rounded-sm p-10 text-center">
             <div>
-              <p className="font-display text-3xl font-semibold text-white">
-                {posts.length === 0 ? 'No posts yet' : 'No posts found'}
+              <p className="font-serif-display text-3xl text-echo-light">
+                {posts.length === 0 ? 'No essays yet' : 'No essays found'}
               </p>
-              <p className="mt-3 text-white/58">
+              <p className="mt-3 text-echo-light/60 font-serif-text">
                 {posts.length === 0
-                  ? 'Be the first to publish a post.'
+                  ? 'Be the first to share your thoughts.'
                   : 'Try a different search or category.'}
               </p>
             </div>

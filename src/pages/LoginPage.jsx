@@ -55,49 +55,46 @@ export default function LoginPage({ onLogin, onSignup }) {
       <section className="page-shell grid min-h-screen place-items-center py-12">
         <div className="w-full max-w-md">
           <div className="mb-10 text-center">
-            <p className="font-web mb-4 text-xs font-black uppercase tracking-[0.28em] text-white/50">
-              Welcome to blog
-            </p>
-            <h1 className="font-web text-balance text-4xl font-black uppercase tracking-[-0.08em] text-white">
-              {mode === 'signin' ? 'Sign In' : 'Create Account'}
+            <h1 className="font-serif-display text-4xl text-echo-light mb-4">
+              {mode === 'signin' ? 'Welcome' : 'Join Echo'}
             </h1>
-            <p className="mt-4 text-white/58">
+            <p className="text-echo-light/70 font-serif-text">
               {mode === 'signin'
-                ? 'Access your account to read and share stories'
-                : 'Join our blogging community'}
+                ? 'Sign in to read and share essays'
+                : 'Create an account to start sharing your thoughts'}
             </p>
           </div>
 
           <form
             onSubmit={mode === 'signin' ? handleSignIn : handleSignUp}
-            className="glass-panel rounded-[32px] p-8"
+            className="border border-echo-light/10 p-8"
           >
             {/* Tab Toggle */}
-            <div className="mb-8 inline-flex rounded-full border border-white/10 bg-black/20 p-1">
+            <div className="mb-8 inline-flex border border-echo-light/20">
               <button
                 type="button"
                 onClick={() => setMode('signin')}
                 disabled={isLoading}
-                className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition ${
+                className={`px-4 py-2 text-sm font-serif-text transition ${
                   mode === 'signin'
-                    ? 'bg-white text-black'
-                    : 'text-white/58 hover:text-white'
+                    ? 'bg-echo-light text-echo-dark'
+                    : 'text-echo-light/60 hover:text-echo-light'
                 }`}
               >
-                <LogIn className="h-4 w-4" />
+                <LogIn className="inline h-4 w-4 mr-2" />
                 Sign In
               </button>
               <button
                 type="button"
                 onClick={() => setMode('signup')}
                 disabled={isLoading}
-                className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition ${
+                className={`px-4 py-2 text-sm font-serif-text transition border-l border-echo-light/20 ${
                   mode === 'signup'
-                    ? 'bg-white text-black'
-                    : 'text-white/58 hover:text-white'
+                    ? 'bg-echo-light text-echo-dark'
+                    : 'text-echo-light/60 hover:text-echo-light'
                 }`}
               >
-                <UserPlus className="h-4 w-4" />
+                <UserPlus className="inline h-4 w-4 mr-2" />
                 Sign Up
               </button>
             </div>
@@ -105,8 +102,8 @@ export default function LoginPage({ onLogin, onSignup }) {
             {/* Name Field - Sign Up Only */}
             {mode === 'signup' && (
               <div className="mb-6 grid gap-2">
-                <label htmlFor="name" className="text-sm font-semibold uppercase tracking-[0.22em] text-white/45">
-                  Full Name
+                <label htmlFor="name" className="text-sm font-serif-text tracking-wider text-echo-light/60">
+                  FULL NAME
                 </label>
                 <input
                   id="name"
@@ -114,7 +111,7 @@ export default function LoginPage({ onLogin, onSignup }) {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Your name"
-                  className="rounded-full border border-white/10 bg-black/20 px-5 py-3 text-white outline-none placeholder:text-white/28 focus:border-white/35 disabled:opacity-50"
+                  className="border border-echo-light/10 bg-echo-dark/30 px-4 py-3 text-echo-light outline-none placeholder:text-echo-light/30 focus:border-echo-light/40 font-serif-text disabled:opacity-50"
                   disabled={isLoading}
                   required={mode === 'signup'}
                 />
@@ -123,8 +120,8 @@ export default function LoginPage({ onLogin, onSignup }) {
 
             {/* Email Field */}
             <div className="mb-6 grid gap-2">
-              <label htmlFor="email" className="text-sm font-semibold uppercase tracking-[0.22em] text-white/45">
-                Email Address
+              <label htmlFor="email" className="text-sm font-serif-text tracking-wider text-echo-light/60">
+                EMAIL ADDRESS
               </label>
               <input
                 id="email"
@@ -132,7 +129,7 @@ export default function LoginPage({ onLogin, onSignup }) {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@example.com"
-                className="rounded-full border border-white/10 bg-black/20 px-5 py-3 text-white outline-none placeholder:text-white/28 focus:border-white/35 disabled:opacity-50"
+                className="border border-echo-light/10 bg-echo-dark/30 px-4 py-3 text-echo-light outline-none placeholder:text-echo-light/30 focus:border-echo-light/40 font-serif-text disabled:opacity-50"
                 disabled={isLoading}
                 required
               />
@@ -140,8 +137,8 @@ export default function LoginPage({ onLogin, onSignup }) {
 
             {/* Password Field */}
             <div className="mb-8 grid gap-2">
-              <label htmlFor="password" className="text-sm font-semibold uppercase tracking-[0.22em] text-white/45">
-                Password
+              <label htmlFor="password" className="text-sm font-serif-text tracking-wider text-echo-light/60">
+                PASSWORD
               </label>
               <input
                 id="password"
@@ -149,18 +146,18 @@ export default function LoginPage({ onLogin, onSignup }) {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="rounded-full border border-white/10 bg-black/20 px-5 py-3 text-white outline-none placeholder:text-white/28 focus:border-white/35 disabled:opacity-50"
+                className="border border-echo-light/10 bg-echo-dark/30 px-4 py-3 text-echo-light outline-none placeholder:text-echo-light/30 focus:border-echo-light/40 font-serif-text disabled:opacity-50"
                 disabled={isLoading}
                 required
               />
               {mode === 'signup' && (
-                <p className="text-xs text-white/40">Minimum 6 characters</p>
+                <p className="text-xs text-echo-light/40 font-serif-text">Minimum 6 characters</p>
               )}
             </div>
 
             {/* Error Message */}
             {error && (
-              <div className="mb-6 rounded-full border border-[#ff6b6b]/30 bg-[#ff6b6b]/10 px-5 py-3 text-sm text-[#ffb3b3]">
+              <div className="mb-6 border border-red-900/50 bg-red-900/10 px-4 py-3 text-sm text-red-200/70 font-serif-text">
                 {error}
               </div>
             )}
@@ -169,44 +166,18 @@ export default function LoginPage({ onLogin, onSignup }) {
             <button
               type="submit"
               disabled={isLoading}
-              className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-white px-6 py-4 font-semibold text-black transition hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-50"
+              className="w-full bg-echo-light text-echo-dark px-6 py-3 font-serif-text transition hover:bg-echo-cream disabled:cursor-not-allowed disabled:opacity-50 mb-4"
             >
               {mode === 'signin' ? (
                 <>
-                  <LogIn className="h-4 w-4" />
                   {isLoading ? 'Signing in...' : 'Sign In'}
                 </>
               ) : (
                 <>
-                  <UserPlus className="h-4 w-4" />
                   {isLoading ? 'Creating account...' : 'Create Account'}
                 </>
               )}
             </button>
-
-            {/* Info Box */}
-            <div className="mt-8 rounded-[24px] border border-white/10 bg-black/20 p-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/45 mb-3">
-                {mode === 'signin' ? 'Demo Account' : 'Demo Credentials'}
-              </p>
-              <div className="space-y-2 text-xs text-white/58">
-                <div>
-                  <p className="font-semibold text-white/75">Admin Account</p>
-                  <p>Email: <span className="font-mono">admin@blog.com</span></p>
-                  <p>Password: <span className="font-mono">admin123</span></p>
-                </div>
-                <div className="border-t border-white/10 pt-2">
-                  <p className="font-semibold text-white/75">
-                    {mode === 'signin' ? 'New Here?' : 'Already have an account?'}
-                  </p>
-                  <p>
-                    {mode === 'signin'
-                      ? 'Click the Sign Up tab to create a new account'
-                      : 'Click the Sign In tab to log in'}
-                  </p>
-                </div>
-              </div>
-            </div>
           </form>
         </div>
       </section>

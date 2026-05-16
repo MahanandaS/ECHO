@@ -34,13 +34,14 @@ export function usePosts() {
   }, [posts]);
 
   const createPost = (post, ownerId = ADMIN_ID) => {
+    const authorName = ownerId === ADMIN_ID ? 'Admin' : (post.author || 'Anonymous');
     const newPost = {
       ...post,
       id: createId(),
       ownerId,
-      author: ownerId === ADMIN_ID ? 'Admin' : 'User',
+      author: authorName,
       authorBio: ownerId === ADMIN_ID ? 'Site Administrator' : 'Blog writer',
-      authorInitials: ownerId === ADMIN_ID ? 'A' : post.authorInitials || 'U',
+      authorInitials: ownerId === ADMIN_ID ? 'A' : post.authorInitials || authorName.charAt(0).toUpperCase(),
       createdAt: 'Just now',
       readTime: estimateReadTime(`${post.title} ${post.content}`),
       featured: false,
@@ -62,13 +63,14 @@ export function usePosts() {
       return null;
     }
 
+    const authorName = existingPost.ownerId === ADMIN_ID ? 'Admin' : (existingPost.author || 'Anonymous');
     const updatedPost = {
       ...existingPost,
       ...updates,
       ownerId: existingPost.ownerId,
-      author: existingPost.ownerId === ADMIN_ID ? 'Admin' : 'User',
+      author: authorName,
       authorBio: existingPost.ownerId === ADMIN_ID ? 'Site Administrator' : 'Blog writer',
-      authorInitials: existingPost.ownerId === ADMIN_ID ? 'A' : '?',
+      authorInitials: existingPost.ownerId === ADMIN_ID ? 'A' : authorName.charAt(0).toUpperCase(),
       readTime: estimateReadTime(`${updates.title || existingPost.title} ${updates.content || existingPost.content}`),
       updatedAt: 'Updated just now',
     };
