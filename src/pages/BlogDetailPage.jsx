@@ -1,4 +1,5 @@
 import { ArrowLeft, Edit3, Trash2 } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import ArticleBody from '../components/ArticleBody.jsx';
 import PageTransition from '../components/PageTransition.jsx';
@@ -13,15 +14,45 @@ export default function BlogDetailPage({
   const { postId } = useParams();
   const navigate = useNavigate();
   const post = posts.find((item) => item.id === postId);
+  const [isEditable, setIsEditable] = useState(false);
+  const [isDeletable, setIsDeletable] = useState(false);
 
-  const handleDelete = () => {
+  /**
+   * Check edit and delete permissions (async operations)
+   */
+  useEffect(() => {
+    const checkPermissions = async () => {
+      try {
+        if (canEdit && postId) {
+          const canEditResult = await canEdit(postId);
+          setIsEditable(canEditResult);
+        }
+
+        if (canDelete && postId) {
+          const canDeleteResult = await canDelete(postId);
+          setIsDeletable(canDeleteResult);
+        }
+      } catch (error) {
+        console.error('Error checking permissions:', error);
+      }
+    };
+
+    checkPermissions();
+  }, [postId, canEdit, canDelete]);
+
+  const handleDelete = async () => {
     const shouldDelete = window.confirm('Delete this essay?');
     if (!shouldDelete) {
       return;
     }
 
-    onDeletePost(post.id);
-    navigate('/feed');
+    try {
+      await onDeletePost(post.id);
+      navigate('/feed');
+    } catch (error) {
+      console.error('Failed to delete post:', error);
+      alert('Failed to delete post. Please try again.');
+    }
   };
 
   if (!post) {
@@ -38,9 +69,6 @@ export default function BlogDetailPage({
       </PageTransition>
     );
   }
-
-  const isEditable = canEdit && canEdit(postId);
-  const isDeletable = canDelete && canDelete(postId);
 
   return (
     <PageTransition>

@@ -39,6 +39,17 @@ export default function App() {
   // User is authenticated, show app with protected routes
   const currentUserId = authState.user.id;
 
+  // Show loading state while posts are loading from Supabase
+  if (postsState.isLoading) {
+    return (
+      <div className="grid min-h-screen place-items-center bg-black">
+        <div className="text-center">
+          <p className="text-echo-light/60 font-serif-text">Loading your essays...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <AppLayout user={authState.user} onLogout={authState.logout}>
       <Routes>
@@ -49,7 +60,11 @@ export default function App() {
           element={
             <CreatePostPage
               user={authState.user}
+              // Pass async post creation function
               onCreatePost={(post) => postsState.createPost(post, currentUserId)}
+              onUpdatePost={(postId, updates) =>
+                postsState.updatePost(postId, updates, currentUserId)
+              }
             />
           }
         />
@@ -63,7 +78,7 @@ export default function App() {
               onUpdatePost={(postId, updates) =>
                 postsState.updatePost(postId, updates, currentUserId)
               }
-              canEdit={(postId) => postsState.canEditPost(postId, currentUserId)}
+              canEdit={async (postId) => postsState.canEditPost(postId, currentUserId)}
             />
           }
         />
@@ -73,8 +88,8 @@ export default function App() {
             <BlogDetailPage
               posts={postsState.posts}
               onDeletePost={(postId) => postsState.deletePost(postId, currentUserId)}
-              canEdit={(postId) => postsState.canEditPost(postId, currentUserId)}
-              canDelete={(postId) => postsState.canDeletePost(postId, currentUserId)}
+              canEdit={async (postId) => postsState.canEditPost(postId, currentUserId)}
+              canDelete={async (postId) => postsState.canDeletePost(postId, currentUserId)}
               currentUserId={currentUserId}
             />
           }

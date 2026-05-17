@@ -3,8 +3,8 @@ import { useState } from 'react';
 import { NavLink, Link } from 'react-router-dom';
 
 const navItems = [
-  { label: 'Home', href: '/' },
-  { label: 'Essays', href: '/feed' },
+  { label: 'New', href: '/' },
+  { label: 'Blog', href: '/feed' },
   { label: 'Write', href: '/create' },
 ];
 

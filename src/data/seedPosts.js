@@ -18,4 +18,47 @@ export const categories = [
   'Science',
 ];
 
-export const seedPosts = [];
+export const seedPosts = [
+  {
+    id: '1',
+    title: 'How to choose a psychologist',
+    excerpt: 'Tips for choosing a psychotherapist and answers to financial questions related to therapy.',
+    content: 'Finding the right psychologist is an important journey. This essay explores the key considerations when choosing a mental health professional, from credentials and specializations to therapeutic approaches and financial aspects.',
+    category: 'Psychology',
+    image: 'https://images.unsplash.com/photo-1554080221-cbf00ca7f540?w=800&h=600&fit=crop',
+    author: 'Alex Morgan',
+    authorInitials: 'AM',
+    ownerId: 'admin-owner',
+    createdAt: new Date().toLocaleDateString(),
+    readTime: '8 min read',
+    featured: true,
+  },
+  {
+    id: '2',
+    title: 'Racism, bias, and discrimination',
+    excerpt: 'A collection of APA web pages about the psychological impacts of racism, bias, and discrimination.',
+    content: 'Understanding the psychological impacts of racism and discrimination is crucial for creating more equitable societies. This piece examines how bias affects mental health and wellbeing.',
+    category: 'Psychology',
+    image: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&h=600&fit=crop',
+    author: 'Jordan Chen',
+    authorInitials: 'JC',
+    ownerId: 'admin-owner',
+    createdAt: new Date().toLocaleDateString(),
+    readTime: '12 min read',
+    featured: true,
+  },
+  {
+    id: '3',
+    title: 'The art of deep work',
+    excerpt: 'Exploring techniques to maintain focus and produce meaningful work in an increasingly distracted world.',
+    content: 'In our digital age, the ability to concentrate deeply has become increasingly rare and valuable. Learn strategies for protecting your attention and producing your best work.',
+    category: 'Productivity',
+    image: 'https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?w=800&h=600&fit=crop',
+    author: 'Sam Rivera',
+    authorInitials: 'SR',
+    ownerId: 'admin-owner',
+    createdAt: new Date().toLocaleDateString(),
+    readTime: '10 min read',
+    featured: false,
+  },
+];

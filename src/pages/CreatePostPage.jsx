@@ -95,7 +95,7 @@ export default function CreatePostPage({
     setMode('write');
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     if (!draft.title.trim() || !draft.content.trim() || !draft.authorName.trim()) {
       alert('Please fill in title, content, and author name');
@@ -113,15 +113,22 @@ export default function CreatePostPage({
       authorInitials: draft.authorName.trim().charAt(0).toUpperCase(),
     };
 
-    if (isEditing) {
-      const updatedPost = onUpdatePost(postId, postPayload);
-      navigate(`/post/${updatedPost?.id || postId}`);
-      return;
-    }
+    try {
+      if (isEditing) {
+        // Wait for update to complete
+        const updatedPost = await onUpdatePost(postId, postPayload);
+        navigate(`/post/${updatedPost?.id || postId}`);
+        return;
+      }
 
-    const post = onCreatePost(postPayload);
-    clearDraft();
-    navigate(`/post/${post.id}`);
+      // Wait for creation to complete
+      const post = await onCreatePost(postPayload);
+      clearDraft();
+      navigate(`/post/${post.id}`);
+    } catch (error) {
+      console.error('Failed to save post:', error);
+      alert('Failed to save post. Please try again.');
+    }
   };
 
   if (isEditing && !editingPost) {

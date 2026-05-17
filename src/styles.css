@@ -7,8 +7,8 @@
 :root {
   color-scheme: dark;
   font-family: 'Lora', 'Georgia', serif;
-  background: rgb(12, 21, 16);
-  color: #e8e8e0;
+  background: #0f0f0f;
+  color: #ffffff;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -28,8 +28,8 @@ body {
   min-height: 100vh;
   margin: 0;
   overflow-x: hidden;
-  background: rgb(12, 21, 16)!important;
-  color: #e8e8e0;
+  background: #0f0f0f!important;
+  color: #ffffff;
 }
 
 body::selection {
@@ -55,8 +55,8 @@ select {
 }
 
 .glass-panel {
-  border: 1px solid rgba(232, 232, 224, 0.1);
-  background: rgba(45, 90, 71, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(10px);
 }
 

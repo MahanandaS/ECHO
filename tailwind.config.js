@@ -4,9 +4,9 @@ export default {
   theme: {
     extend: {
       colors: {
-        'echo-dark': '#1a3a2a',
-        'echo-green': '#2d5a47',
-        'echo-light': '#e8e8e0',
+        'echo-dark': '#0f0f0f',
+        'echo-green': '#1a1a1a',
+        'echo-light': '#ffffff',
         'echo-cream': '#f5f3f0',
       },
       fontFamily: {

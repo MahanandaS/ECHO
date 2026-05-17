@@ -1,115 +1,170 @@
 import { useEffect, useState } from 'react';
-import { seedPosts } from '../data/seedPosts.js';
+import {
+  fetchAllPosts,
+  createPost as supabaseCreatePost,
+  updatePost as supabaseUpdatePost,
+  deletePost as supabaseDeletePost,
+  canUserEditPost,
+  canUserDeletePost,
+} from '../services/supabase.js';
 
-const POSTS_STORAGE_KEY = 'blog.posts.v1';
 const ADMIN_ID = 'admin-owner';
 
-const estimateReadTime = (text) => {
-  const words = text.trim().split(/\s+/).filter(Boolean).length;
-  return `${Math.max(1, Math.ceil(words / 180))} min read`;
-};
-
-const createId = () => {
-  if (crypto.randomUUID) {
-    return crypto.randomUUID();
-  }
-
-  return `post-${Date.now()}`;
-};
-
-const loadPosts = () => {
-  try {
-    const storedPosts = localStorage.getItem(POSTS_STORAGE_KEY);
-    return storedPosts ? JSON.parse(storedPosts) : seedPosts;
-  } catch {
-    return seedPosts;
-  }
-};
-
+/**
+ * USEPOSTS HOOK - NOW WITH SUPABASE!
+ * 
+ * This hook manages all blog posts using Supabase cloud database
+ * instead of localStorage. Now posts sync across all devices!
+ * 
+ * The component interface stays the same, so other files don't need changes.
+ */
 export function usePosts() {
-  const [posts, setPosts] = useState(loadPosts);
+  const [posts, setPosts] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
+  /**
+   * On component mount: Fetch all posts from Supabase
+   * This runs once when the hook is first used
+   */
   useEffect(() => {
-    localStorage.setItem(POSTS_STORAGE_KEY, JSON.stringify(posts));
-  }, [posts]);
+    const loadPosts = async () => {
+      setIsLoading(true);
+      setError(null);
 
-  const createPost = (post, ownerId = ADMIN_ID) => {
-    const authorName = ownerId === ADMIN_ID ? 'Admin' : (post.author || 'Anonymous');
-    const newPost = {
-      ...post,
-      id: createId(),
-      ownerId,
-      author: authorName,
-      authorBio: ownerId === ADMIN_ID ? 'Site Administrator' : 'Blog writer',
-      authorInitials: ownerId === ADMIN_ID ? 'A' : post.authorInitials || authorName.charAt(0).toUpperCase(),
-      createdAt: 'Just now',
-      readTime: estimateReadTime(`${post.title} ${post.content}`),
-      featured: false,
+      try {
+        const fetchedPosts = await fetchAllPosts();
+        setPosts(fetchedPosts);
+      } catch (err) {
+        console.error('Failed to load posts:', err);
+        setError('Failed to load posts');
+      } finally {
+        setIsLoading(false);
+      }
     };
 
-    setPosts((currentPosts) => [newPost, ...currentPosts]);
-    return newPost;
-  };
+    loadPosts();
+  }, []); // Empty dependency array = runs only once on mount
 
-  const updatePost = (postId, updates, currentUserId = ADMIN_ID) => {
-    const existingPost = posts.find((post) => post.id === postId);
-    if (!existingPost) {
+  /**
+   * CREATE POST
+   * Adds new post to Supabase database
+   * 
+   * How it works:
+   * 1. Send post data to Supabase
+   * 2. Get back the created post with ID
+   * 3. Add it to local state (prepend to top)
+   * 4. Return the new post
+   */
+  const createPost = async (post, ownerId = ADMIN_ID) => {
+    try {
+      const newPost = await supabaseCreatePost(post, ownerId);
+      
+      if (newPost) {
+        // Add to top of posts list
+        setPosts((currentPosts) => [newPost, ...currentPosts]);
+        return newPost;
+      }
+
+      setError('Failed to create post');
+      return null;
+    } catch (err) {
+      console.error('Error in createPost:', err);
+      setError('Failed to create post');
       return null;
     }
+  };
 
-    // Check ownership - only allow owner or admin
-    if (existingPost.ownerId !== currentUserId && currentUserId !== ADMIN_ID) {
-      console.warn('User not authorized to update this post');
+  /**
+   * UPDATE POST
+   * Modifies existing post in Supabase
+   * 
+   * How it works:
+   * 1. Send update to Supabase (checks permissions)
+   * 2. Get back updated post
+   * 3. Replace it in local state
+   * 4. Return the updated post
+   */
+  const updatePost = async (postId, updates, currentUserId = ADMIN_ID) => {
+    try {
+      const updatedPost = await supabaseUpdatePost(postId, updates, currentUserId);
+
+      if (updatedPost) {
+        // Replace post in list
+        setPosts((currentPosts) =>
+          currentPosts.map((p) => (p.id === postId ? updatedPost : p)),
+        );
+        return updatedPost;
+      }
+
+      setError('Failed to update post');
+      return null;
+    } catch (err) {
+      console.error('Error in updatePost:', err);
+      setError('Failed to update post');
       return null;
     }
-
-    const authorName = existingPost.ownerId === ADMIN_ID ? 'Admin' : (existingPost.author || 'Anonymous');
-    const updatedPost = {
-      ...existingPost,
-      ...updates,
-      ownerId: existingPost.ownerId,
-      author: authorName,
-      authorBio: existingPost.ownerId === ADMIN_ID ? 'Site Administrator' : 'Blog writer',
-      authorInitials: existingPost.ownerId === ADMIN_ID ? 'A' : authorName.charAt(0).toUpperCase(),
-      readTime: estimateReadTime(`${updates.title || existingPost.title} ${updates.content || existingPost.content}`),
-      updatedAt: 'Updated just now',
-    };
-
-    setPosts((currentPosts) =>
-      currentPosts.map((post) => (post.id === postId ? updatedPost : post)),
-    );
-
-    return updatedPost;
   };
 
-  const deletePost = (postId, currentUserId = ADMIN_ID) => {
-    const post = posts.find((p) => p.id === postId);
-    if (!post) {
+  /**
+   * DELETE POST
+   * Removes post from Supabase
+   * 
+   * How it works:
+   * 1. Send delete request to Supabase (checks permissions)
+   * 2. If successful, remove from local state
+   * 3. Return true/false
+   */
+  const deletePost = async (postId, currentUserId = ADMIN_ID) => {
+    try {
+      const success = await supabaseDeletePost(postId, currentUserId);
+
+      if (success) {
+        // Remove post from list
+        setPosts((currentPosts) => currentPosts.filter((p) => p.id !== postId));
+        return true;
+      }
+
+      setError('Failed to delete post');
+      return false;
+    } catch (err) {
+      console.error('Error in deletePost:', err);
+      setError('Failed to delete post');
       return false;
     }
+  };
 
-    // Check ownership - only allow owner or admin
-    if (post.ownerId !== currentUserId && currentUserId !== ADMIN_ID) {
-      console.warn('User not authorized to delete this post');
+  /**
+   * CHECK IF USER CAN EDIT
+   * Validates permission before showing edit button
+   */
+  const canEditPost = async (postId, currentUserId = ADMIN_ID) => {
+    try {
+      return await canUserEditPost(postId, currentUserId);
+    } catch (err) {
+      console.error('Error checking edit permission:', err);
       return false;
     }
-
-    setPosts((currentPosts) => currentPosts.filter((p) => p.id !== postId));
-    return true;
   };
 
-  const canEditPost = (postId, currentUserId = ADMIN_ID) => {
-    const post = posts.find((p) => p.id === postId);
-    return post && (post.ownerId === currentUserId || currentUserId === ADMIN_ID);
+  /**
+   * CHECK IF USER CAN DELETE
+   * Validates permission before showing delete button
+   */
+  const canDeletePost = async (postId, currentUserId = ADMIN_ID) => {
+    try {
+      return await canUserDeletePost(postId, currentUserId);
+    } catch (err) {
+      console.error('Error checking delete permission:', err);
+      return false;
+    }
   };
 
-  const canDeletePost = (postId, currentUserId = ADMIN_ID) => {
-    const post = posts.find((p) => p.id === postId);
-    return post && (post.ownerId === currentUserId || currentUserId === ADMIN_ID);
-  };
-
+  // Return hook interface (same as before, so components don't need changes!)
   return {
     posts,
+    isLoading,
+    error,
     createPost,
     updatePost,
     deletePost,
@@ -118,3 +173,4 @@ export function usePosts() {
     ADMIN_ID,
   };
 }
+
