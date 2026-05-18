@@ -8,8 +8,9 @@ import { seedPosts } from '../data/seedPosts.js';
  * This ensures the home page displays 4-5 sample blogs
  */
 export async function seedDatabase() {
+  if (!db) return;
+
   try {
-    // Check if posts already exist
     const postsCollection = collection(db, 'posts');
     const snapshot = await getDocs(postsCollection);
     

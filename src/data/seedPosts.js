@@ -1,21 +1,14 @@
 export const categories = [
   'Psychology',
-  'Life',
-  'Technology',
   'Philosophy',
-  'Health',
   'Creativity',
+  'Technology',
   'Relationships',
-  'Travel',
-  'Productivity',
   'Culture',
-  'Ideas',
-  'Design',
-  'Startup',
   'Writing',
-  'Education',
-  'Finance',
   'Science',
+  'Ideas',
+  'Life',
 ];
 
 export const seedPosts = [
@@ -52,7 +45,7 @@ export const seedPosts = [
     title: 'The art of deep work',
     excerpt: 'Exploring techniques to maintain focus and produce meaningful work in an increasingly distracted world.',
     content: 'In our digital age, the ability to concentrate deeply has become increasingly rare and valuable. Learn strategies for protecting your attention and producing your best work.',
-    category: 'Productivity',
+    category: 'Ideas',
     image: 'https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?w=800&h=600&fit=crop',
     author: 'Sam Rivera',
     authorInitials: 'SR',

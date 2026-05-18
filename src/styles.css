@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800;900&family=Lora:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@400;500;600&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,9 +6,9 @@
 
 :root {
   color-scheme: dark;
-  font-family: 'Lora', 'Georgia', serif;
-  background: #0f0f0f;
-  color: #ffffff;
+  font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  background: #000000;
+  color: #f5f5f5;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -28,13 +28,13 @@ body {
   min-height: 100vh;
   margin: 0;
   overflow-x: hidden;
-  background: #0f0f0f!important;
-  color: #ffffff;
+  background: #000000 !important;
+  color: #f5f5f5;
 }
 
 body::selection {
-  background: rgb(145, 154, 20);
-  color: #f5f3f0;
+  background: rgba(245, 245, 245, 0.2);
+  color: #f5f5f5;
 }
 
 a {
@@ -50,222 +50,61 @@ select {
 }
 
 .page-shell {
-  width: min(1000px, calc(100% - 40px));
+  width: min(1120px, calc(100% - 2rem));
+  margin-inline: auto;
+}
+
+.page-shell-wide {
+  width: min(1280px, calc(100% - 2rem));
   margin-inline: auto;
 }
 
 .glass-panel {
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(17, 17, 17, 0.72);
+  backdrop-filter: blur(12px);
+}
+
+.font-serif-display {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.font-serif-text {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-weight: 400;
 }
 
 .text-balance {
   text-wrap: balance;
 }
 
-.font-serif-display {
-  font-family: 'Playfair Display', Georgia, serif;
-  font-weight: 700;
-}
-
-.font-serif-text {
-  font-family: 'Lora', Georgia, serif;
-}
-
-/* Elegant divider */
 .elegant-divider {
-  border-top: 1px solid rgba(232, 232, 224, 0.15);
-  margin: 4rem 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  margin: 5rem 0;
 }
 
-.soft-ring {
-  box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.22),
-    0 0 22px rgba(255, 255, 255, 0.16);
+.btn-primary {
+  @apply inline-flex items-center justify-center gap-2 rounded-full bg-echo-heading px-8 py-3 font-sans text-sm font-medium text-black transition hover:bg-white;
 }
 
-.webcore-frame {
-  position: relative;
-  border: 2px solid rgba(255, 255, 255, 0.9);
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.025)),
-    rgba(3, 3, 3, 0.9);
-  box-shadow:
-    0 0 0 5px rgba(0, 0, 0, 0.95),
-    0 0 0 7px rgba(255, 255, 255, 0.28),
-    0 0 34px rgba(255, 255, 255, 0.18),
-    inset 0 0 28px rgba(255, 255, 255, 0.06);
+.btn-secondary {
+  @apply inline-flex items-center justify-center gap-2 rounded-full border border-white/20 px-8 py-3 font-sans text-sm text-echo-heading transition hover:border-white/40 hover:bg-white/5;
 }
 
-.webcore-panel {
-  border: 1px solid rgba(255, 255, 255, 0.78);
-  background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.035)),
-    rgba(8, 8, 8, 0.84);
-  box-shadow:
-    inset 0 0 18px rgba(255, 255, 255, 0.08),
-    0 10px 30px rgba(0, 0, 0, 0.42);
+.category-scroll {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
-.webcore-label {
-  display: inline-flex;
-  align-items: center;
-  border: 1px solid rgba(255, 255, 255, 0.8);
-  background: #f4f4f4;
-  color: #060606;
-  padding: 0.18rem 0.45rem;
-  font-family: "Courier New", ui-monospace, monospace;
-  font-size: 0.72rem;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+.category-scroll::-webkit-scrollbar {
+  display: none;
 }
 
-.webcore-strip {
-  border-block: 1px solid rgba(255, 255, 255, 0.46);
-  background:
-    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.12) 0 1px, transparent 1px 7px),
-    rgba(255, 255, 255, 0.05);
-}
-
-.scanlines::after {
-  content: "";
-  pointer-events: none;
-  position: absolute;
-  inset: 0;
-  background: repeating-linear-gradient(
-    180deg,
-    rgba(255, 255, 255, 0.045) 0,
-    rgba(255, 255, 255, 0.045) 1px,
-    transparent 1px,
-    transparent 4px
-  );
-  mix-blend-mode: screen;
-  opacity: 0.35;
-}
-
-.static-surface {
-  background-image:
-    radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.16), transparent 18rem),
-    repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.09) 0 1px, transparent 1px 7px);
-}
-
-.ambient-orb-a {
-  animation: ambient-orb-a 18s ease-in-out infinite;
-}
-
-.ambient-orb-b {
-  animation: ambient-orb-b 22s ease-in-out infinite;
-}
-
-.ambient-orb-c {
-  animation: ambient-orb-c 16s ease-in-out infinite;
-}
-
-.float-card-a {
-  animation: float-card-a 7s ease-in-out infinite;
-}
-
-.float-card-b {
-  animation: float-card-b 9s ease-in-out infinite;
-}
-
-.card-enter {
-  animation: card-enter 520ms ease-out both;
-}
-
-.page-enter {
-  animation: page-enter 360ms ease-out both;
-}
-
-@keyframes ambient-orb-a {
-  0%,
-  100% {
-    transform: translate3d(0, 0, 0) scale(1);
-  }
-
-  35% {
-    transform: translate3d(28px, -24px, 0) scale(1.08);
-  }
-
-  70% {
-    transform: translate3d(-18px, 18px, 0) scale(0.98);
-  }
-}
-
-@keyframes ambient-orb-b {
-  0%,
-  100% {
-    transform: translate3d(0, 0, 0) scale(1);
-  }
-
-  40% {
-    transform: translate3d(-24px, 28px, 0) scale(0.95);
-  }
-
-  72% {
-    transform: translate3d(16px, -12px, 0) scale(1.08);
-  }
-}
-
-@keyframes ambient-orb-c {
-  0%,
-  100% {
-    opacity: 0.42;
-    transform: translateY(0);
-  }
-
-  50% {
-    opacity: 0.7;
-    transform: translateY(-36px);
-  }
-}
-
-@keyframes float-card-a {
-  0%,
-  100% {
-    transform: translateY(0) rotate(0deg);
-  }
-
-  50% {
-    transform: translateY(-18px) rotate(8deg);
-  }
-}
-
-@keyframes float-card-b {
-  0%,
-  100% {
-    transform: translateY(0) rotate(6deg);
-  }
-
-  50% {
-    transform: translateY(16px) rotate(-4deg);
-  }
-}
-
-@keyframes card-enter {
-  from {
-    opacity: 0;
-    transform: translateY(18px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes page-enter {
-  from {
-    opacity: 0;
-    transform: translateY(14px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.reading-column {
+  max-width: 42rem;
+  margin-inline: auto;
 }
 
 @media (prefers-reduced-motion: reduce) {

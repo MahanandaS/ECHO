@@ -1,4 +1,4 @@
-import { Eye, ImagePlus, PenLine, RotateCcw, Send, X } from 'lucide-react';
+import { ImagePlus, RotateCcw, X } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import ArticleBody from '../components/ArticleBody.jsx';
@@ -42,9 +42,15 @@ export default function CreatePostPage({
   const isEditing = Boolean(postId);
   const [draft, setDraft] = useState(loadDraft);
   const [mode, setMode] = useState('write');
+  const [canEditPost, setCanEditPost] = useState(!isEditing);
 
-  // Check if user can edit this post
-  const canEditPost = canEdit && isEditing && canEdit(postId);
+  useEffect(() => {
+    if (!isEditing || !canEdit || !postId) {
+      setCanEditPost(!isEditing);
+      return;
+    }
+    canEdit(postId).then(setCanEditPost).catch(() => setCanEditPost(false));
+  }, [isEditing, canEdit, postId]);
 
   const wordCount = useMemo(() => {
     return draft.content.trim().split(/\s+/).filter(Boolean).length;
@@ -53,6 +59,12 @@ export default function CreatePostPage({
   const updateDraft = (field, value) => {
     setDraft((currentDraft) => ({ ...currentDraft, [field]: value }));
   };
+
+  useEffect(() => {
+    if (user?.name && !draft.authorName && !isEditing) {
+      setDraft((d) => ({ ...d, authorName: user.name }));
+    }
+  }, [user, isEditing]);
 
   useEffect(() => {
     if (!isEditing) {
@@ -65,10 +77,7 @@ export default function CreatePostPage({
       return;
     }
 
-    // Check permission before loading
-    if (canEdit && !canEdit(postId)) {
-      return;
-    }
+    if (!canEditPost) return;
 
     setDraft({
       title: editingPost.title || '',
@@ -78,7 +87,7 @@ export default function CreatePostPage({
       image: editingPost.image || '',
     });
     setMode('write');
-  }, [editingPost, isEditing, canEdit, postId]);
+  }, [editingPost, isEditing, canEditPost, postId]);
 
   const handleImageUpload = (event) => {
     const file = event.target.files?.[0];
@@ -123,6 +132,10 @@ export default function CreatePostPage({
 
       // Wait for creation to complete
       const post = await onCreatePost(postPayload);
+      if (!post?.id) {
+        alert('Failed to publish essay. Please try again.');
+        return;
+      }
       clearDraft();
       navigate(`/post/${post.id}`);
     } catch (error) {
@@ -139,7 +152,7 @@ export default function CreatePostPage({
             <p className="font-serif-display text-3xl text-echo-light">Essay not found</p>
             <p className="mt-3 text-echo-light/60 font-serif-text">This essay may have already been deleted.</p>
             <Link
-              to="/feed"
+              to="/explore"
               className="mt-6 inline-flex bg-echo-light text-echo-dark px-6 py-3 font-serif-text"
             >
               Back to Essays

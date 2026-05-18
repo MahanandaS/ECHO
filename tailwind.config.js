@@ -4,18 +4,26 @@ export default {
   theme: {
     extend: {
       colors: {
-        'echo-dark': '#0f0f0f',
-        'echo-green': '#1a1a1a',
-        'echo-light': '#ffffff',
-        'echo-cream': '#f5f3f0',
+        'echo-bg': '#000000',
+        'echo-secondary': '#111111',
+        'echo-elevated': '#161616',
+        'echo-heading': '#F5F5F5',
+        'echo-body': '#B3B3B3',
+        'echo-dark': '#000000',
+        'echo-green': '#161616',
+        'echo-light': '#F5F5F5',
+        'echo-cream': '#F5F5F5',
       },
       fontFamily: {
-        'serif': ['Playfair Display', 'Georgia', 'serif'],
-        'serif-text': ['Lora', 'Georgia', 'serif'],
-        'sans': ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        serif: ['"Playfair Display"', 'Georgia', 'serif'],
+        sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+      },
+      maxWidth: {
+        prose: '42rem',
+        editorial: '52rem',
       },
       letterSpacing: {
-        'wide': '0.08em',
+        wide: '0.08em',
       },
     },
   },

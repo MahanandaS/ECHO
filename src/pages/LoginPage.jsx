@@ -19,7 +19,7 @@ export default function LoginPage({ onLogin, onSignup }) {
 
     try {
       onLogin(email, password);
-      navigate('/feed');
+      navigate('/explore');
     } catch (err) {
       setError(err.message || 'Sign in failed');
     } finally {
@@ -34,7 +34,7 @@ export default function LoginPage({ onLogin, onSignup }) {
 
     try {
       onSignup(email, password, name);
-      navigate('/feed');
+      navigate('/explore');
     } catch (err) {
       setError(err.message || 'Sign up failed');
     } finally {

@@ -1,8 +1,9 @@
 import { Search } from 'lucide-react';
 import { useMemo, useState } from 'react';
-import BlogCard from '../components/BlogCard.jsx';
-import CategoryPill from '../components/CategoryPill.jsx';
 import PageTransition from '../components/PageTransition.jsx';
+import GrainOverlay from '../components/GrainOverlay.jsx';
+import PremiumEssayCard from '../components/PremiumEssayCard.jsx';
+import PremiumCategoryPill from '../components/PremiumCategoryPill.jsx';
 import { categories } from '../data/seedPosts.js';
 
 export default function HomeFeedPage({ posts }) {
@@ -21,6 +22,8 @@ export default function HomeFeedPage({ posts }) {
 
   return (
     <PageTransition>
+      <GrainOverlay />
+      
       <section className="page-shell py-20 md:py-24">
         <div className="mb-16">
           <p className="text-xs tracking-widest text-echo-light/50 mb-4">
@@ -42,29 +45,29 @@ export default function HomeFeedPage({ posts }) {
 
           <div className="flex flex-wrap gap-3">
             {['All', ...categories].map((item) => (
-              <CategoryPill key={item} active={category === item} onClick={() => setCategory(item)}>
+              <PremiumCategoryPill key={item} active={category === item} onClick={() => setCategory(item)}>
                 {item}
-              </CategoryPill>
+              </PremiumCategoryPill>
             ))}
           </div>
         </div>
 
         {filteredPosts.length > 0 ? (
-          <div className="grid auto-rows-fr gap-16 md:grid-cols-2">
+          <div className="grid auto-rows-fr gap-16 md:grid-cols-2 lg:grid-cols-3">
             {filteredPosts.map((post) => (
-              <BlogCard key={post.id} post={post} />
+              <PremiumEssayCard key={post.id} post={post} />
             ))}
           </div>
         ) : (
           <div className="glass-panel grid min-h-80 place-items-center rounded-sm p-10 text-center">
             <div>
               <p className="font-serif-display text-3xl text-echo-light">
-                {posts.length === 0 ? 'No essays yet' : 'No essays found'}
+                {posts.length === 0 ? 'The silence awaits' : 'No echoes match your search'}
               </p>
               <p className="mt-3 text-echo-light/60 font-serif-text">
                 {posts.length === 0
-                  ? 'Be the first to share your thoughts.'
-                  : 'Try a different search or category.'}
+                  ? 'Be the first to share your thoughts here.'
+                  : 'Try exploring a different category or search term.'}
               </p>
             </div>
           </div>

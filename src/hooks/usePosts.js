@@ -10,7 +10,38 @@ import {
 } from 'firebase/firestore';
 import { db } from '../firebase.js';
 
+const FIREBASE_SETUP_MESSAGE =
+  'Firebase is not configured. Create .env.local from .env.example, add your keys, then restart the dev server.';
+
 const ADMIN_ID = 'admin-owner';
+
+const mapFirestorePost = (docSnap) => {
+  const data = docSnap.data();
+  const createdAtMs = data.createdAt?.toMillis?.() ?? data.createdAtMs ?? 0;
+
+  return {
+    id: docSnap.id,
+    title: data.title,
+    excerpt: data.excerpt,
+    content: data.content,
+    category: data.category,
+    image: data.image,
+    author: data.author,
+    authorBio: data.authorBio || 'Writer',
+    authorInitials: data.authorInitials,
+    ownerId: data.ownerId,
+    createdAtMs,
+    createdAt: data.createdAt?.toDate
+      ? data.createdAt.toDate().toLocaleDateString()
+      : data.createdAtLabel || 'Just now',
+    updatedAt: data.updatedAt?.toDate ? data.updatedAt.toDate().toLocaleDateString() : null,
+    readTime: data.readTime || '1 min read',
+    featured: data.featured || false,
+    upvotes: data.upvotes ?? data.likes ?? 0,
+    isUpvoted: false,
+    commentsList: Array.isArray(data.commentsList) ? data.commentsList : [],
+  };
+};
 
 /**
  * USEPOSTS HOOK - NOW WITH FIREBASE FIRESTORE!
@@ -27,6 +58,7 @@ const ADMIN_ID = 'admin-owner';
 export function usePosts() {
   const [posts, setPosts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState(null);
   const [error, setError] = useState(null);
 
   /**
@@ -36,47 +68,29 @@ export function usePosts() {
   useEffect(() => {
     const loadPosts = async () => {
       setIsLoading(true);
-      setError(null);
+      setLoadError(null);
 
       try {
-        // Get the 'posts' collection from Firestore
+        if (!db) {
+          setLoadError(FIREBASE_SETUP_MESSAGE);
+          setPosts([]);
+          return;
+        }
+
         const postsCollection = collection(db, 'posts');
         
         // Fetch all documents from the posts collection
         const snapshot = await getDocs(postsCollection);
         
         // Convert Firestore documents to an array we can use
-        const fetchedPosts = snapshot.docs.map(doc => {
-          const data = doc.data();
-          return {
-            id: doc.id, // Use Firestore document ID
-            title: data.title,
-            excerpt: data.excerpt,
-            content: data.content,
-            category: data.category,
-            image: data.image,
-            author: data.author,
-            authorBio: data.authorBio || 'Writer',
-            authorInitials: data.authorInitials,
-            ownerId: data.ownerId,
-            createdAt: data.createdAt?.toDate ? data.createdAt.toDate().toLocaleDateString() : 'Just now',
-            updatedAt: data.updatedAt?.toDate ? data.updatedAt.toDate().toLocaleDateString() : null,
-            readTime: data.readTime || '1 min read',
-            featured: data.featured || false,
-            likes: data.likes || 0,
-            comments: data.comments || 0,
-            isLiked: data.isLiked || false,
-            commentsList: data.commentsList || [],
-          };
-        });
-        
-        // Sort by newest first
-        fetchedPosts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        const fetchedPosts = snapshot.docs.map(mapFirestorePost);
+
+        fetchedPosts.sort((a, b) => b.createdAtMs - a.createdAtMs);
         
         setPosts(fetchedPosts);
       } catch (err) {
         console.error('Failed to load posts from Firestore:', err);
-        setError('Failed to load posts');
+        setLoadError('Failed to load posts. Check your connection and Firebase setup.');
       } finally {
         setIsLoading(false);
       }
@@ -96,6 +110,8 @@ export function usePosts() {
    * 4. Return the new post
    */
   const createPost = async (post, ownerId = ADMIN_ID) => {
+    if (!db) return null;
+
     try {
       // Prepare the data to save
       const postData = {
@@ -109,7 +125,9 @@ export function usePosts() {
         authorInitials: post.authorInitials || post.author.charAt(0).toUpperCase(),
         ownerId: ownerId,
         featured: false,
-        createdAt: serverTimestamp(), // Firebase server time
+        upvotes: 0,
+        commentsList: [],
+        createdAt: serverTimestamp(),
         updatedAt: null,
       };
 
@@ -149,6 +167,8 @@ export function usePosts() {
    * 3. Return the updated post
    */
   const updatePost = async (postId, updates, currentUserId = ADMIN_ID) => {
+    if (!db) return null;
+
     try {
       // Get reference to the post in Firestore
       const postRef = doc(db, 'posts', postId);
@@ -194,6 +214,8 @@ export function usePosts() {
    * 3. Return true/false for success
    */
   const deletePost = async (postId, currentUserId = ADMIN_ID) => {
+    if (!db) return false;
+
     try {
       // Get reference to the post in Firestore
       const postRef = doc(db, 'posts', postId);
@@ -213,50 +235,61 @@ export function usePosts() {
     }
   };
 
-  /**
-   * LIKE POST
-   * Toggles like status for a post (stored in local state only)
-   * Can be extended to save to Firestore with subcollections if needed
-   */
-  const likePost = (postId) => {
+  const upvotePost = async (postId) => {
+    if (!db) return;
+
+    let payload = null;
+
     setPosts((currentPosts) =>
       currentPosts.map((p) => {
-        if (p.id === postId) {
-          return {
-            ...p,
-            likes: p.isLiked ? (p.likes || 1) - 1 : (p.likes || 0) + 1,
-            isLiked: !p.isLiked,
-          };
-        }
-        return p;
-      })
+        if (p.id !== postId) return p;
+        const isUpvoted = !p.isUpvoted;
+        const upvotes = Math.max(0, (p.upvotes || 0) + (isUpvoted ? 1 : -1));
+        payload = { upvotes, isUpvoted };
+        return { ...p, isUpvoted, upvotes };
+      }),
     );
+
+    if (!payload) return;
+
+    try {
+      await updateDoc(doc(db, 'posts', postId), {
+        upvotes: payload.upvotes,
+      });
+    } catch (err) {
+      console.error('Error saving upvote:', err);
+      setError('Failed to save upvote');
+    }
   };
 
-  /**
-   * ADD COMMENT
-   * Adds a comment to a post (stored in local state)
-   * Can be extended to save to Firestore with subcollections if needed
-   */
-  const addComment = (postId, commentText) => {
+  const addComment = async (postId, commentText, author = 'Reader') => {
+    if (!db) return;
+
+    const newComment = {
+      id: `c-${Date.now()}`,
+      text: commentText,
+      author,
+      createdAt: new Date().toLocaleDateString(),
+    };
+
+    let commentsList = null;
+
     setPosts((currentPosts) =>
       currentPosts.map((p) => {
-        if (p.id === postId) {
-          const newComment = {
-            id: Date.now().toString(),
-            text: commentText,
-            author: 'Reader',
-            createdAt: new Date().toLocaleDateString(),
-          };
-          return {
-            ...p,
-            comments: (p.comments || 0) + 1,
-            commentsList: [...(p.commentsList || []), newComment],
-          };
-        }
-        return p;
-      })
+        if (p.id !== postId) return p;
+        commentsList = [...(p.commentsList || []), newComment];
+        return { ...p, commentsList };
+      }),
     );
+
+    if (!commentsList) return;
+
+    try {
+      await updateDoc(doc(db, 'posts', postId), { commentsList });
+    } catch (err) {
+      console.error('Error saving comment:', err);
+      setError('Failed to save comment');
+    }
   };
 
   /**
@@ -297,11 +330,12 @@ export function usePosts() {
   return {
     posts,
     isLoading,
+    loadError,
     error,
     createPost,
     updatePost,
     deletePost,
-    likePost,
+    upvotePost,
     addComment,
     canEditPost,
     canDeletePost,
