@@ -26,8 +26,34 @@ const generateMockId = () => {
   return 'post_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
 };
 
+// LocalStorage key for persisting mock posts
+const MOCK_POSTS_STORAGE_KEY = 'echo_mock_posts';
+
+// Helper function to load mock posts from localStorage
+const loadMockPostsFromStorage = () => {
+  try {
+    const stored = localStorage.getItem(MOCK_POSTS_STORAGE_KEY);
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      return Array.isArray(parsed) ? parsed : [...seedPosts];
+    }
+  } catch (e) {
+    console.warn('Failed to load posts from localStorage:', e);
+  }
+  return [...seedPosts];
+};
+
+// Helper function to save mock posts to localStorage
+const saveMockPostsToStorage = (posts) => {
+  try {
+    localStorage.setItem(MOCK_POSTS_STORAGE_KEY, JSON.stringify(posts));
+  } catch (e) {
+    console.warn('Failed to save posts to localStorage:', e);
+  }
+};
+
 // Shared mock posts storage that persists across multiple calls
-let sharedMockPosts = [...seedPosts];
+let sharedMockPosts = loadMockPostsFromStorage();
 
 // Helper function to create a chainable mock query object
 const createMockQueryBuilder = (data = []) => {
@@ -120,8 +146,9 @@ try {
                 id: item.id || generateMockId(),
                 created_at: item.created_at || new Date().toISOString(),
               }));
-              // Add to shared mock posts
+              // Add to shared mock posts and persist
               sharedMockPosts = [...sharedMockPosts, ...dataWithIds];
+              saveMockPostsToStorage(sharedMockPosts);
               return {
                 select: function() { 
                   return Promise.resolve({ data: dataWithIds, error: null }); 
@@ -137,6 +164,7 @@ try {
                   const updatedPost = postIndex !== -1 ? { ...sharedMockPosts[postIndex], ...updates } : null;
                   if (postIndex !== -1) {
                     sharedMockPosts[postIndex] = updatedPost;
+                    saveMockPostsToStorage(sharedMockPosts);
                   }
                   return {
                     select: function() { 
@@ -157,6 +185,9 @@ try {
                   const initialLength = sharedMockPosts.length;
                   sharedMockPosts = sharedMockPosts.filter(p => p[field] !== value);
                   const success = sharedMockPosts.length < initialLength;
+                  if (success) {
+                    saveMockPostsToStorage(sharedMockPosts);
+                  }
                   return Promise.resolve({ data: null, error: null }); 
                 },
                 then: function(cb) { return Promise.resolve({ data: null, error: null }).then(cb); },
@@ -198,6 +229,7 @@ try {
               created_at: item.created_at || new Date().toISOString(),
             }));
             sharedMockPosts = [...sharedMockPosts, ...dataWithIds];
+            saveMockPostsToStorage(sharedMockPosts);
             return {
               select: function() { 
                 return Promise.resolve({ data: dataWithIds, error: null }); 
@@ -213,6 +245,7 @@ try {
                 const updatedPost = postIndex !== -1 ? { ...sharedMockPosts[postIndex], ...updates } : null;
                 if (postIndex !== -1) {
                   sharedMockPosts[postIndex] = updatedPost;
+                  saveMockPostsToStorage(sharedMockPosts);
                 }
                 return {
                   select: function() { 
@@ -232,6 +265,9 @@ try {
               eq: function(field, value) { 
                 const initialLength = sharedMockPosts.length;
                 sharedMockPosts = sharedMockPosts.filter(p => p[field] !== value);
+                if (sharedMockPosts.length < initialLength) {
+                  saveMockPostsToStorage(sharedMockPosts);
+                }
                 return Promise.resolve({ data: null, error: null }); 
               },
               then: function(cb) { return Promise.resolve({ data: null, error: null }).then(cb); },
