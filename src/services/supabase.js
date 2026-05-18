@@ -21,31 +21,77 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 // Create a mock client if credentials are not properly configured
 let supabase;
 
-// Helper function to create a mock query object that supports chaining and awaiting
-const createMockQuery = () => {
-  const mockData = {
-    [Symbol.toStringTag]: 'Promise',
-    then: function(resolve) {
-      resolve({ data: [], error: null });
-      return this;
+// Helper function to generate a simple UUID-like ID for mock posts
+const generateMockId = () => {
+  return 'post_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
+};
+
+// Shared mock posts storage that persists across multiple calls
+let sharedMockPosts = [...seedPosts];
+
+// Helper function to create a chainable mock query object
+const createMockQueryBuilder = (data = []) => {
+  return {
+    select: function() { return createMockQueryBuilder(data); },
+    insert: function(insertData) { 
+      const newData = Array.isArray(insertData) ? insertData : [insertData];
+      // Add IDs to new posts if they don't have them
+      const dataWithIds = newData.map(item => ({
+        ...item,
+        id: item.id || generateMockId(),
+        created_at: item.created_at || new Date().toISOString(),
+      }));
+      return {
+        select: function() { 
+          return Promise.resolve({ data: dataWithIds, error: null }); 
+        },
+        then: function(cb) { return Promise.resolve({ data: dataWithIds, error: null }).then(cb); },
+        catch: function(cb) { return Promise.resolve({ data: dataWithIds, error: null }).catch(cb); },
+      };
     },
-    catch: function() {
-      return this;
+    update: function(updates) { 
+      return {
+        eq: function() { 
+          return {
+            select: function() { 
+              return Promise.resolve({ data: updates, error: null }); 
+            },
+            single: function() {
+              return Promise.resolve({ data: updates, error: null });
+            },
+            then: function(cb) { return Promise.resolve({ data: updates, error: null }).then(cb); },
+            catch: function(cb) { return Promise.resolve({ data: updates, error: null }).catch(cb); },
+          };
+        },
+      };
     },
-    finally: function() {
-      return this;
+    delete: function() { 
+      return {
+        eq: function() { 
+          return Promise.resolve({ data: null, error: null }); 
+        },
+        then: function(cb) { return Promise.resolve({ data: null, error: null }).then(cb); },
+        catch: function(cb) { return Promise.resolve({ data: null, error: null }).catch(cb); },
+      };
     },
-    select: function() { return this; },
-    insert: function() { return this; },
-    update: function() { return this; },
-    delete: function() { return this; },
-    eq: function() { return this; },
-    match: function() { return this; },
-    order: function() { return this; },
-    limit: function() { return this; },
-    single: function() { return this; },
+    eq: function(field, value) { 
+      // Filter data based on the eq condition
+      const filtered = data.filter(item => item[field] === value);
+      return createMockQueryBuilder(filtered); 
+    },
+    match: function() { return createMockQueryBuilder(data); },
+    order: function() { return createMockQueryBuilder(data); },
+    limit: function() { return createMockQueryBuilder(data); },
+    single: function() { 
+      return Promise.resolve({ data: data && data.length > 0 ? data[0] : null, error: null }); 
+    },
+    then: function(cb) { 
+      return Promise.resolve({ data: data, error: null }).then(cb); 
+    },
+    catch: function(cb) { 
+      return Promise.resolve({ data: data, error: null }).catch(cb); 
+    },
   };
-  return Promise.resolve({ data: [], error: null });
 };
 
 try {
@@ -58,19 +104,75 @@ try {
     console.log('Supabase initialized with real credentials');
   } else {
     console.warn('Supabase credentials not configured. Using mock data.');
+    
     // Create a mock supabase object for development
     supabase = {
-      from: () => ({
-        select: () => Promise.resolve({ data: seedPosts, error: null }),
-        insert: (data) => Promise.resolve({ data, error: null }),
-        update: (data) => Promise.resolve({ data, error: null }),
-        delete: () => Promise.resolve({ data: null, error: null }),
-        eq: () => Promise.resolve({ data: seedPosts, error: null }),
-        match: () => Promise.resolve({ data: seedPosts, error: null }),
-        order: () => Promise.resolve({ data: seedPosts, error: null }),
-        limit: () => Promise.resolve({ data: seedPosts, error: null }),
-        single: () => Promise.resolve({ data: null, error: null }),
-      }),
+      from: (table) => {
+        // For posts table, return mock posts with proper chaining
+        if (table === 'posts') {
+          return {
+            select: function() { return createMockQueryBuilder(sharedMockPosts); },
+            insert: function(insertData) { 
+              const newData = Array.isArray(insertData) ? insertData : [insertData];
+              // Add IDs to new posts if they don't have them
+              const dataWithIds = newData.map(item => ({
+                ...item,
+                id: item.id || generateMockId(),
+                created_at: item.created_at || new Date().toISOString(),
+              }));
+              // Add to shared mock posts
+              sharedMockPosts = [...sharedMockPosts, ...dataWithIds];
+              return {
+                select: function() { 
+                  return Promise.resolve({ data: dataWithIds, error: null }); 
+                },
+                then: function(cb) { return Promise.resolve({ data: dataWithIds, error: null }).then(cb); },
+                catch: function(cb) { return Promise.resolve({ data: dataWithIds, error: null }).catch(cb); },
+              };
+            },
+            update: function(updates) { 
+              return {
+                eq: function(field, value) { 
+                  const postIndex = sharedMockPosts.findIndex(p => p[field] === value);
+                  const updatedPost = postIndex !== -1 ? { ...sharedMockPosts[postIndex], ...updates } : null;
+                  if (postIndex !== -1) {
+                    sharedMockPosts[postIndex] = updatedPost;
+                  }
+                  return {
+                    select: function() { 
+                      return Promise.resolve({ data: updatedPost, error: null }); 
+                    },
+                    single: function() {
+                      return Promise.resolve({ data: updatedPost, error: null });
+                    },
+                    then: function(cb) { return Promise.resolve({ data: updatedPost, error: null }).then(cb); },
+                    catch: function(cb) { return Promise.resolve({ data: updatedPost, error: null }).catch(cb); },
+                  };
+                },
+              };
+            },
+            delete: function() { 
+              return {
+                eq: function(field, value) { 
+                  const initialLength = sharedMockPosts.length;
+                  sharedMockPosts = sharedMockPosts.filter(p => p[field] !== value);
+                  const success = sharedMockPosts.length < initialLength;
+                  return Promise.resolve({ data: null, error: null }); 
+                },
+                then: function(cb) { return Promise.resolve({ data: null, error: null }).then(cb); },
+                catch: function(cb) { return Promise.resolve({ data: null, error: null }).catch(cb); },
+              };
+            },
+            eq: function(field, value) { 
+              // Filter data based on the eq condition
+              const filtered = sharedMockPosts.filter(item => item[field] === value);
+              return createMockQueryBuilder(filtered); 
+            },
+            order: function() { return createMockQueryBuilder(sharedMockPosts); },
+          };
+        }
+        return createMockQueryBuilder([]);
+      },
       auth: {
         signUp: async () => ({ data: null, error: new Error('Auth not configured') }),
         signInWithPassword: async () => ({ data: null, error: new Error('Auth not configured') }),
@@ -81,19 +183,70 @@ try {
   }
 } catch (error) {
   console.error('Error initializing Supabase:', error);
+  
   // Fallback to mock client
   supabase = {
-    from: () => ({
-      select: () => Promise.resolve({ data: [], error: null }),
-      insert: (data) => Promise.resolve({ data, error: null }),
-      update: (data) => Promise.resolve({ data, error: null }),
-      delete: () => Promise.resolve({ data: null, error: null }),
-      eq: () => Promise.resolve({ data: [], error: null }),
-      match: () => Promise.resolve({ data: [], error: null }),
-      order: () => Promise.resolve({ data: [], error: null }),
-      limit: () => Promise.resolve({ data: [], error: null }),
-      single: () => Promise.resolve({ data: null, error: null }),
-    }),
+    from: (table) => {
+      if (table === 'posts') {
+        return {
+          select: function() { return createMockQueryBuilder(sharedMockPosts); },
+          insert: function(insertData) { 
+            const newData = Array.isArray(insertData) ? insertData : [insertData];
+            const dataWithIds = newData.map(item => ({
+              ...item,
+              id: item.id || generateMockId(),
+              created_at: item.created_at || new Date().toISOString(),
+            }));
+            sharedMockPosts = [...sharedMockPosts, ...dataWithIds];
+            return {
+              select: function() { 
+                return Promise.resolve({ data: dataWithIds, error: null }); 
+              },
+              then: function(cb) { return Promise.resolve({ data: dataWithIds, error: null }).then(cb); },
+              catch: function(cb) { return Promise.resolve({ data: dataWithIds, error: null }).catch(cb); },
+            };
+          },
+          update: function(updates) { 
+            return {
+              eq: function(field, value) { 
+                const postIndex = sharedMockPosts.findIndex(p => p[field] === value);
+                const updatedPost = postIndex !== -1 ? { ...sharedMockPosts[postIndex], ...updates } : null;
+                if (postIndex !== -1) {
+                  sharedMockPosts[postIndex] = updatedPost;
+                }
+                return {
+                  select: function() { 
+                    return Promise.resolve({ data: updatedPost, error: null }); 
+                  },
+                  single: function() {
+                    return Promise.resolve({ data: updatedPost, error: null });
+                  },
+                  then: function(cb) { return Promise.resolve({ data: updatedPost, error: null }).then(cb); },
+                  catch: function(cb) { return Promise.resolve({ data: updatedPost, error: null }).catch(cb); },
+                };
+              },
+            };
+          },
+          delete: function() { 
+            return {
+              eq: function(field, value) { 
+                const initialLength = sharedMockPosts.length;
+                sharedMockPosts = sharedMockPosts.filter(p => p[field] !== value);
+                return Promise.resolve({ data: null, error: null }); 
+              },
+              then: function(cb) { return Promise.resolve({ data: null, error: null }).then(cb); },
+              catch: function(cb) { return Promise.resolve({ data: null, error: null }).catch(cb); },
+            };
+          },
+          eq: function(field, value) { 
+            const filtered = sharedMockPosts.filter(item => item[field] === value);
+            return createMockQueryBuilder(filtered); 
+          },
+          order: function() { return createMockQueryBuilder(sharedMockPosts); },
+        };
+      }
+      return createMockQueryBuilder([]);
+    },
     auth: {
       signUp: async () => ({ data: null, error: new Error('Auth not configured') }),
       signInWithPassword: async () => ({ data: null, error: new Error('Auth not configured') }),
