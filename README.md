@@ -1,8 +1,8 @@
 # ECHO
 
-ECHO is a modern anonymous blogging web application built using React, Vite, Tailwind CSS, and Firebase.
+ECHO is a modern blogging web application built using React, Vite, Tailwind CSS, and Firebase.
 
-The platform allows users to create and explore anonymous posts through a clean and responsive interface. The project is deployed on Vercel and focuses on a fast frontend experience with scalable architecture for future backend enhancements.
+The platform allows users to create and explore posts through a clean and responsive interface. The project is deployed on Vercel and focuses on a fast frontend experience with scalable architecture for future backend enhancements.
 
 Tech Stack
 React
@@ -12,7 +12,7 @@ Firebase
 React Router DOM
 Vercel
 Features
-Anonymous blog posting
+blog posting
 Responsive UI
 Client-side routing
 Firebase configuration support
