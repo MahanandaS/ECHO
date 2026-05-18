@@ -1,22 +1,28 @@
 import { useEffect, useState } from 'react';
-import {
-  fetchAllPosts,
-  createPost as supabaseCreatePost,
-  updatePost as supabaseUpdatePost,
-  deletePost as supabaseDeletePost,
-  canUserEditPost,
-  canUserDeletePost,
-} from '../services/supabase.js';
+import { 
+  collection, 
+  getDocs, 
+  addDoc, 
+  updateDoc, 
+  deleteDoc, 
+  doc,
+  serverTimestamp 
+} from 'firebase/firestore';
+import { db } from '../firebase.js';
 
 const ADMIN_ID = 'admin-owner';
 
 /**
- * USEPOSTS HOOK - NOW WITH SUPABASE!
+ * USEPOSTS HOOK - NOW WITH FIREBASE FIRESTORE!
  * 
- * This hook manages all blog posts using Supabase cloud database
- * instead of localStorage. Now posts sync across all devices!
+ * This hook manages all blog posts using Firebase Firestore cloud database.
+ * Posts are saved to the cloud and sync across all devices automatically!
  * 
- * The component interface stays the same, so other files don't need changes.
+ * How it works:
+ * 1. On app load: Fetch all posts from Firestore
+ * 2. On create: Save new post to Firestore and update local state
+ * 3. On update: Update post in Firestore and update local state
+ * 4. On delete: Remove post from Firestore and update local state
  */
 export function usePosts() {
   const [posts, setPosts] = useState([]);
@@ -24,8 +30,8 @@ export function usePosts() {
   const [error, setError] = useState(null);
 
   /**
-   * On component mount: Fetch all posts from Supabase
-   * This runs once when the hook is first used
+   * FETCH ALL POSTS FROM FIRESTORE
+   * This runs once when the app loads (when this hook is first used)
    */
   useEffect(() => {
     const loadPosts = async () => {
@@ -33,10 +39,39 @@ export function usePosts() {
       setError(null);
 
       try {
-        const fetchedPosts = await fetchAllPosts();
+        // Get the 'posts' collection from Firestore
+        const postsCollection = collection(db, 'posts');
+        
+        // Fetch all documents from the posts collection
+        const snapshot = await getDocs(postsCollection);
+        
+        // Convert Firestore documents to an array we can use
+        const fetchedPosts = snapshot.docs.map(doc => {
+          const data = doc.data();
+          return {
+            id: doc.id, // Use Firestore document ID
+            title: data.title,
+            excerpt: data.excerpt,
+            content: data.content,
+            category: data.category,
+            image: data.image,
+            author: data.author,
+            authorBio: data.authorBio || 'Writer',
+            authorInitials: data.authorInitials,
+            ownerId: data.ownerId,
+            createdAt: data.createdAt?.toDate ? data.createdAt.toDate().toLocaleDateString() : 'Just now',
+            updatedAt: data.updatedAt?.toDate ? data.updatedAt.toDate().toLocaleDateString() : null,
+            readTime: data.readTime || '1 min read',
+            featured: data.featured || false,
+          };
+        });
+        
+        // Sort by newest first
+        fetchedPosts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        
         setPosts(fetchedPosts);
       } catch (err) {
-        console.error('Failed to load posts:', err);
+        console.error('Failed to load posts from Firestore:', err);
         setError('Failed to load posts');
       } finally {
         setIsLoading(false);
@@ -48,28 +83,53 @@ export function usePosts() {
 
   /**
    * CREATE POST
-   * Adds new post to Supabase database
+   * Adds a new post to Firestore
    * 
    * How it works:
-   * 1. Send post data to Supabase
-   * 2. Get back the created post with ID
-   * 3. Add it to local state (prepend to top)
+   * 1. Add the post to Firestore cloud database
+   * 2. Firestore returns the new post with an ID
+   * 3. Add it to local state (show at top of list)
    * 4. Return the new post
    */
   const createPost = async (post, ownerId = ADMIN_ID) => {
     try {
-      const newPost = await supabaseCreatePost(post, ownerId);
-      
-      if (newPost) {
-        // Add to top of posts list
-        setPosts((currentPosts) => [newPost, ...currentPosts]);
-        return newPost;
-      }
+      // Prepare the data to save
+      const postData = {
+        title: post.title,
+        excerpt: post.excerpt,
+        content: post.content,
+        category: post.category,
+        image: post.image,
+        author: post.author,
+        authorBio: post.authorBio || 'Writer',
+        authorInitials: post.authorInitials || post.author.charAt(0).toUpperCase(),
+        ownerId: ownerId,
+        featured: false,
+        createdAt: serverTimestamp(), // Firebase server time
+        updatedAt: null,
+      };
 
-      setError('Failed to create post');
-      return null;
+      // Add to Firestore 'posts' collection
+      // addDoc automatically creates a new document with a unique ID
+      const docRef = await addDoc(collection(db, 'posts'), postData);
+      
+      // Create the post object to return
+      const newPost = {
+        id: docRef.id, // Use the ID that Firestore created
+        ...post,
+        ownerId: ownerId,
+        createdAt: 'Just now',
+        readTime: '1 min read',
+        featured: false,
+      };
+      
+      // Add to the top of our local posts list
+      setPosts((currentPosts) => [newPost, ...currentPosts]);
+      
+      console.log('✅ Post created in Firestore:', docRef.id);
+      return newPost;
     } catch (err) {
-      console.error('Error in createPost:', err);
+      console.error('Error creating post:', err);
       setError('Failed to create post');
       return null;
     }
@@ -77,30 +137,44 @@ export function usePosts() {
 
   /**
    * UPDATE POST
-   * Modifies existing post in Supabase
+   * Modifies an existing post in Firestore
    * 
    * How it works:
-   * 1. Send update to Supabase (checks permissions)
-   * 2. Get back updated post
-   * 3. Replace it in local state
-   * 4. Return the updated post
+   * 1. Update the post in Firestore
+   * 2. Update it in local state
+   * 3. Return the updated post
    */
   const updatePost = async (postId, updates, currentUserId = ADMIN_ID) => {
     try {
-      const updatedPost = await supabaseUpdatePost(postId, updates, currentUserId);
-
-      if (updatedPost) {
-        // Replace post in list
-        setPosts((currentPosts) =>
-          currentPosts.map((p) => (p.id === postId ? updatedPost : p)),
-        );
-        return updatedPost;
-      }
-
-      setError('Failed to update post');
-      return null;
+      // Get reference to the post in Firestore
+      const postRef = doc(db, 'posts', postId);
+      
+      // Data to update (add update timestamp)
+      const updateData = {
+        title: updates.title,
+        excerpt: updates.excerpt,
+        content: updates.content,
+        category: updates.category,
+        image: updates.image,
+        updatedAt: serverTimestamp(),
+      };
+      
+      // Update the post in Firestore
+      await updateDoc(postRef, updateData);
+      
+      // Update in local state
+      setPosts((currentPosts) =>
+        currentPosts.map((p) => 
+          p.id === postId 
+            ? { ...p, ...updates, updatedAt: 'Updated just now' } 
+            : p
+        ),
+      );
+      
+      console.log('✅ Post updated in Firestore:', postId);
+      return { id: postId, ...updates };
     } catch (err) {
-      console.error('Error in updatePost:', err);
+      console.error('Error updating post:', err);
       setError('Failed to update post');
       return null;
     }
@@ -108,27 +182,28 @@ export function usePosts() {
 
   /**
    * DELETE POST
-   * Removes post from Supabase
+   * Removes a post from Firestore
    * 
    * How it works:
-   * 1. Send delete request to Supabase (checks permissions)
-   * 2. If successful, remove from local state
-   * 3. Return true/false
+   * 1. Delete the post from Firestore
+   * 2. Remove it from local state
+   * 3. Return true/false for success
    */
   const deletePost = async (postId, currentUserId = ADMIN_ID) => {
     try {
-      const success = await supabaseDeletePost(postId, currentUserId);
-
-      if (success) {
-        // Remove post from list
-        setPosts((currentPosts) => currentPosts.filter((p) => p.id !== postId));
-        return true;
-      }
-
-      setError('Failed to delete post');
-      return false;
+      // Get reference to the post in Firestore
+      const postRef = doc(db, 'posts', postId);
+      
+      // Delete from Firestore
+      await deleteDoc(postRef);
+      
+      // Remove from local state
+      setPosts((currentPosts) => currentPosts.filter((p) => p.id !== postId));
+      
+      console.log('✅ Post deleted from Firestore:', postId);
+      return true;
     } catch (err) {
-      console.error('Error in deletePost:', err);
+      console.error('Error deleting post:', err);
       setError('Failed to delete post');
       return false;
     }
@@ -140,7 +215,11 @@ export function usePosts() {
    */
   const canEditPost = async (postId, currentUserId = ADMIN_ID) => {
     try {
-      return await canUserEditPost(postId, currentUserId);
+      // Find the post in our local state
+      const post = posts.find(p => p.id === postId);
+      
+      // Allow if user is the owner or admin
+      return post && (post.ownerId === currentUserId || currentUserId === ADMIN_ID);
     } catch (err) {
       console.error('Error checking edit permission:', err);
       return false;
@@ -153,7 +232,11 @@ export function usePosts() {
    */
   const canDeletePost = async (postId, currentUserId = ADMIN_ID) => {
     try {
-      return await canUserDeletePost(postId, currentUserId);
+      // Find the post in our local state
+      const post = posts.find(p => p.id === postId);
+      
+      // Allow if user is the owner or admin
+      return post && (post.ownerId === currentUserId || currentUserId === ADMIN_ID);
     } catch (err) {
       console.error('Error checking delete permission:', err);
       return false;
