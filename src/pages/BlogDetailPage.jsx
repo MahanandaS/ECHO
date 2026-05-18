@@ -15,6 +15,7 @@ export default function BlogDetailPage({
   onDeletePost,
   onUpvote,
   onComment,
+  onDeleteComment,
   canEdit,
   canDelete,
   currentUserId,
@@ -188,7 +189,10 @@ export default function BlogDetailPage({
               isUpvoted={post.isUpvoted || false}
               onUpvote={onUpvote}
               onComment={onComment}
+              onDeleteComment={onDeleteComment}
               authorName={currentUserName}
+              postOwnerId={post.ownerId}
+              currentUserId={currentUserId}
             />
           </div>
 

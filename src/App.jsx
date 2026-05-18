@@ -1,4 +1,4 @@
-import { Navigate, Route, Routes } from 'react-router-dom';
+﻿import { Navigate, Route, Routes } from 'react-router-dom';
 import { useEffect } from 'react';
 import AppLayout from './layouts/AppLayout.jsx';
 import LoginPage from './pages/LoginPage.jsx';
@@ -6,6 +6,7 @@ import LandingPage from './pages/LandingPage.jsx';
 import CreatePostPage from './pages/CreatePostPage.jsx';
 import BlogDetailPage from './pages/BlogDetailPage.jsx';
 import ExplorePage from './pages/ExplorePage.jsx';
+import ProtectedRoute from './components/ProtectedRoute.jsx';
 import { usePosts } from './hooks/usePosts.js';
 import { useAuth } from './hooks/useAuth.js';
 import { seedDatabase } from './utils/seedDatabase.js';
@@ -57,7 +58,12 @@ export default function App() {
           : undefined
       }
       onUpvote={(postId) => postsState.upvotePost(postId)}
-      onComment={(postId, text, author) => postsState.addComment(postId, text, author)}
+      onComment={(postId, text, author) => postsState.addComment(postId, text, author, currentUserId)}
+      onDeleteComment={
+        isAuthenticated
+          ? (postId, commentId) => postsState.deleteComment(postId, commentId)
+          : undefined
+      }
       canEdit={
         isAuthenticated
           ? async (postId) => postsState.canEditPost(postId, currentUserId)
@@ -118,27 +124,31 @@ export default function App() {
         <Route
           path="/create"
           element={
-            <CreatePostPage
-              user={authState.user}
-              onCreatePost={(post) => postsState.createPost(post, currentUserId)}
-              onUpdatePost={(postId, updates) =>
-                postsState.updatePost(postId, updates, currentUserId)
-              }
-            />
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <CreatePostPage
+                user={authState.user}
+                onCreatePost={(post) => postsState.createPost(post, currentUserId)}
+                onUpdatePost={(postId, updates) =>
+                  postsState.updatePost(postId, updates, currentUserId)
+                }
+              />
+            </ProtectedRoute>
           }
         />
         <Route
           path="/edit/:postId"
           element={
-            <CreatePostPage
-              user={authState.user}
-              posts={postsState.posts}
-              onCreatePost={(post) => postsState.createPost(post, currentUserId)}
-              onUpdatePost={(postId, updates) =>
-                postsState.updatePost(postId, updates, currentUserId)
-              }
-              canEdit={async (postId) => postsState.canEditPost(postId, currentUserId)}
-            />
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <CreatePostPage
+                user={authState.user}
+                posts={postsState.posts}
+                onCreatePost={(post) => postsState.createPost(post, currentUserId)}
+                onUpdatePost={(postId, updates) =>
+                  postsState.updatePost(postId, updates, currentUserId)
+                }
+                canEdit={async (postId) => postsState.canEditPost(postId, currentUserId)}
+              />
+            </ProtectedRoute>
           }
         />
         <Route path="/feed" element={<Navigate to="/explore" replace />} />
@@ -148,3 +158,6 @@ export default function App() {
     </AppLayout>
   );
 }
+
+
+

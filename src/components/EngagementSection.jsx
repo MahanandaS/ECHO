@@ -1,4 +1,4 @@
-import { ArrowUp, MessageCircle } from 'lucide-react';
+﻿import { ArrowUp, MessageCircle, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -9,10 +9,14 @@ export default function EngagementSection({
   onUpvote = () => {},
   isUpvoted = false,
   onComment = () => {},
+  onDeleteComment = () => {},
   authorName = 'Reader',
+  postOwnerId = null,
+  currentUserId = null,
 }) {
   const [commentText, setCommentText] = useState('');
   const commentCount = commentsList.length;
+  const isPostAuthor = postOwnerId && currentUserId && postOwnerId === currentUserId;
 
   const handleUpvote = () => {
     onUpvote(postId);
@@ -73,7 +77,24 @@ export default function EngagementSection({
                     <p className="font-sans text-sm font-medium text-echo-heading">
                       {comment.author || 'Reader'}
                     </p>
-                    <time className="font-sans text-xs text-echo-body/70">{comment.createdAt}</time>
+                    <div className="flex items-center gap-3">
+                      <time className="font-sans text-xs text-echo-body/70">{comment.createdAt}</time>
+                      {isPostAuthor && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (window.confirm('Delete this reflection?')) {
+                              onDeleteComment(postId, comment.id);
+                            }
+                          }}
+                          className="text-echo-body/60 transition hover:text-red-400"
+                          aria-label="Delete comment"
+                          title="Delete this reflection"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      )}
+                    </div>
                   </div>
                   <p className="font-sans text-base leading-relaxed text-echo-body">{comment.text}</p>
                 </motion.li>

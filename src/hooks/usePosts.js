@@ -262,13 +262,14 @@ export function usePosts() {
     }
   };
 
-  const addComment = async (postId, commentText, author = 'Reader') => {
+  const addComment = async (postId, commentText, author = 'Reader', authorId = null) => {
     if (!db) return;
 
     const newComment = {
       id: `c-${Date.now()}`,
       text: commentText,
       author,
+      authorId: authorId || 'guest',
       createdAt: new Date().toLocaleDateString(),
     };
 
@@ -289,6 +290,29 @@ export function usePosts() {
     } catch (err) {
       console.error('Error saving comment:', err);
       setError('Failed to save comment');
+    }
+  };
+
+  const deleteComment = async (postId, commentId) => {
+    if (!db) return;
+
+    let commentsList = null;
+
+    setPosts((currentPosts) =>
+      currentPosts.map((p) => {
+        if (p.id !== postId) return p;
+        commentsList = (p.commentsList || []).filter((c) => c.id !== commentId);
+        return { ...p, commentsList };
+      }),
+    );
+
+    if (commentsList === null) return;
+
+    try {
+      await updateDoc(doc(db, 'posts', postId), { commentsList });
+    } catch (err) {
+      console.error('Error deleting comment:', err);
+      setError('Failed to delete comment');
     }
   };
 
@@ -337,6 +361,7 @@ export function usePosts() {
     deletePost,
     upvotePost,
     addComment,
+    deleteComment,
     canEditPost,
     canDeletePost,
     ADMIN_ID,
