@@ -4,19 +4,21 @@
  * This file initializes Firebase and Firestore.
  * Think of Firebase as a cloud database service that stores your posts online.
  * Firestore is the database where your posts live in the cloud.
+ * 
+ * 🔒 SECURITY: Configuration is loaded from .env.local (not committed to git)
  */
 
 import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
 
-// Your Firebase configuration
+// Firebase configuration loaded from environment variables
 const firebaseConfig = {
-  apiKey: "AIzaSyB1myHtW97D1r-q-CR5u9VZycYNviA1NBE",
-  authDomain: "echo-ee5aa.firebaseapp.com",
-  projectId: "echo-ee5aa",
-  storageBucket: "echo-ee5aa.firebasestorage.app",
-  messagingSenderId: "1003885670250",
-  appId: "1:1003885670250:web:dd16bd596ab0e8c8e0ff13"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
 
 // Initialize Firebase app
