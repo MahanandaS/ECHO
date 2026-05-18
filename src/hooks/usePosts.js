@@ -63,6 +63,10 @@ export function usePosts() {
             updatedAt: data.updatedAt?.toDate ? data.updatedAt.toDate().toLocaleDateString() : null,
             readTime: data.readTime || '1 min read',
             featured: data.featured || false,
+            likes: data.likes || 0,
+            comments: data.comments || 0,
+            isLiked: data.isLiked || false,
+            commentsList: data.commentsList || [],
           };
         });
         
@@ -210,6 +214,52 @@ export function usePosts() {
   };
 
   /**
+   * LIKE POST
+   * Toggles like status for a post (stored in local state only)
+   * Can be extended to save to Firestore with subcollections if needed
+   */
+  const likePost = (postId) => {
+    setPosts((currentPosts) =>
+      currentPosts.map((p) => {
+        if (p.id === postId) {
+          return {
+            ...p,
+            likes: p.isLiked ? (p.likes || 1) - 1 : (p.likes || 0) + 1,
+            isLiked: !p.isLiked,
+          };
+        }
+        return p;
+      })
+    );
+  };
+
+  /**
+   * ADD COMMENT
+   * Adds a comment to a post (stored in local state)
+   * Can be extended to save to Firestore with subcollections if needed
+   */
+  const addComment = (postId, commentText) => {
+    setPosts((currentPosts) =>
+      currentPosts.map((p) => {
+        if (p.id === postId) {
+          const newComment = {
+            id: Date.now().toString(),
+            text: commentText,
+            author: 'Reader',
+            createdAt: new Date().toLocaleDateString(),
+          };
+          return {
+            ...p,
+            comments: (p.comments || 0) + 1,
+            commentsList: [...(p.commentsList || []), newComment],
+          };
+        }
+        return p;
+      })
+    );
+  };
+
+  /**
    * CHECK IF USER CAN EDIT
    * Validates permission before showing edit button
    */
@@ -243,7 +293,7 @@ export function usePosts() {
     }
   };
 
-  // Return hook interface (same as before, so components don't need changes!)
+  // Return hook interface with new like/comment methods
   return {
     posts,
     isLoading,
@@ -251,6 +301,8 @@ export function usePosts() {
     createPost,
     updatePost,
     deletePost,
+    likePost,
+    addComment,
     canEditPost,
     canDeletePost,
     ADMIN_ID,

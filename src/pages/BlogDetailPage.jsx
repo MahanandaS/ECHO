@@ -2,11 +2,15 @@ import { ArrowLeft, Edit3, Trash2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import ArticleBody from '../components/ArticleBody.jsx';
+import LikeCommentSection from '../components/LikeCommentSection.jsx';
+import { getCoverImage } from '../utils/categoryCovers.js';
 import PageTransition from '../components/PageTransition.jsx';
 
 export default function BlogDetailPage({
   posts,
   onDeletePost,
+  onLike,
+  onComment,
   canEdit,
   canDelete,
   currentUserId,
@@ -131,7 +135,7 @@ export default function BlogDetailPage({
         </header>
 
         <img
-          src={post.image}
+          src={getCoverImage(post.category, post.image)}
           alt=""
           className="mt-8 w-full max-h-96 object-cover mb-12"
         />
@@ -140,6 +144,18 @@ export default function BlogDetailPage({
           content={post.content}
           className="mx-auto max-w-3xl text-lg leading-8 text-echo-light/80"
         />
+
+        {/* Like and Comment Section */}
+        <div className="mt-16 max-w-3xl mx-auto pt-8 border-t border-echo-light/10">
+          <LikeCommentSection
+            postId={post.id}
+            likes={post.likes || 0}
+            comments={post.comments || 0}
+            isLiked={post.isLiked || false}
+            onLike={onLike}
+            onComment={onComment}
+          />
+        </div>
       </article>
     </PageTransition>
   );

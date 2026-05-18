@@ -1,4 +1,5 @@
 import { Route, Routes, Navigate } from 'react-router-dom';
+import { useEffect } from 'react';
 import AppLayout from './layouts/AppLayout.jsx';
 import LoginPage from './pages/LoginPage.jsx';
 import LandingPage from './pages/LandingPage.jsx';
@@ -8,10 +9,16 @@ import BlogDetailPage from './pages/BlogDetailPage.jsx';
 import ExplorePage from './pages/ExplorePage.jsx';
 import { usePosts } from './hooks/usePosts.js';
 import { useAuth } from './hooks/useAuth.js';
+import { seedDatabase } from './utils/seedDatabase.js';
 
 export default function App() {
   const postsState = usePosts();
   const authState = useAuth();
+
+  // Seed database on first load
+  useEffect(() => {
+    seedDatabase();
+  }, []);
 
   if (authState.isLoading) {
     return (
@@ -88,6 +95,8 @@ export default function App() {
             <BlogDetailPage
               posts={postsState.posts}
               onDeletePost={(postId) => postsState.deletePost(postId, currentUserId)}
+              onLike={(postId) => postsState.likePost(postId)}
+              onComment={(postId, comment) => postsState.addComment(postId, comment)}
               canEdit={async (postId) => postsState.canEditPost(postId, currentUserId)}
               canDelete={async (postId) => postsState.canDeletePost(postId, currentUserId)}
               currentUserId={currentUserId}

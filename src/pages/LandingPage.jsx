@@ -4,7 +4,10 @@ import BlogCard from '../components/BlogCard.jsx';
 import PageTransition from '../components/PageTransition.jsx';
 
 export default function LandingPage({ posts }) {
-  const featuredPosts = posts.filter((post) => post.featured).slice(0, 4);
+  // Show up to 5 sample posts - use featured if available, otherwise use latest
+  const featuredPosts = posts.filter((post) => post.featured).slice(0, 5);
+  const allPosts = posts.slice(0, 5);
+  const postsToShow = featuredPosts.length > 0 ? featuredPosts : allPosts;
 
   return (
     <PageTransition>
@@ -60,12 +63,23 @@ export default function LandingPage({ posts }) {
           </p>
         </div>
 
-        {featuredPosts.length > 0 ? (
-          <div className="grid gap-12 md:grid-cols-2">
-            {featuredPosts.map((post) => (
-              <BlogCard key={post.id} post={post} />
-            ))}
-          </div>
+        {postsToShow.length > 0 ? (
+          <>
+            <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-3">
+              {postsToShow.slice(0, 3).map((post) => (
+                <BlogCard key={post.id} post={post} />
+              ))}
+            </div>
+            
+            {/* Second row for remaining posts */}
+            {postsToShow.length > 3 && (
+              <div className="mt-12 grid gap-12 md:grid-cols-2 lg:grid-cols-3">
+                {postsToShow.slice(3, 5).map((post) => (
+                  <BlogCard key={post.id} post={post} />
+                ))}
+              </div>
+            )}
+          </>
         ) : (
           <div className="glass-panel grid min-h-80 place-items-center rounded-sm p-10 text-center">
             <div>
