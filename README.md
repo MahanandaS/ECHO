@@ -1,8 +1,30 @@
 # ECHO
 
-ECHO is a frontend-only anonymous blogging website built with React, Vite, Tailwind CSS, React Router, and local React state.
+ECHO is a modern anonymous blogging platform built using React, Vite, Tailwind CSS, and React Router. The application focuses on delivering a clean, responsive, and smooth user experience for creating and exploring anonymous posts.
 
-There is no backend, authentication, database, profile system, or API layer. Posts are created anonymously and rendered locally in the UI.
+Features
+Anonymous post creation
+Responsive modern UI
+Dynamic routing with React Router
+Component-based architecture
+Fast development and optimized builds with Vite
+Real-time UI updates using React state management
+Minimal and distraction-free blogging experience
+Tech Stack
+React
+Vite
+Tailwind CSS
+React Router DOM
+Project Architecture
+
+The project currently follows a frontend-focused MVP architecture where application state is managed locally using React hooks and component state. The application is designed to be easily extendable with future backend integrations such as:
+
+User authentication
+Database storage
+REST APIs
+Cloud deployment
+Real-time interactions
+Profile management
 
 ## Run The Project
 
