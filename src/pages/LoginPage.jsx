@@ -13,34 +13,34 @@ export default function LoginPage({ onLogin, onSignup }) {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSignIn = async (e) => {
-    e.preventDefault();
-    setError('');
-    setIsLoading(true);
+  e.preventDefault();
+  setError('');
+  setIsLoading(true);
 
-    try {
-      onLogin(email, password);
-      navigate('/explore');
-    } catch (err) {
-      setError(err.message || 'Sign in failed');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  try {
+    await onLogin(email, password);  // added await
+    navigate('/explore');
+  } catch (err) {
+    setError(err.message || 'Sign in failed');
+  } finally {
+    setIsLoading(false);
+  }
+};
 
-  const handleSignUp = async (e) => {
-    e.preventDefault();
-    setError('');
-    setIsLoading(true);
+ const handleSignUp = async (e) => {
+  e.preventDefault();
+  setError('');
+  setIsLoading(true);
 
-    try {
-      onSignup(email, password, name);
-      navigate('/explore');
-    } catch (err) {
-      setError(err.message || 'Sign up failed');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  try {
+    await onSignup(email, password, name);  // added await
+    navigate('/explore');
+  } catch (err) {
+    setError(err.message || 'Sign up failed');
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   const switchMode = () => {
     setMode(mode === 'signin' ? 'signup' : 'signin');
