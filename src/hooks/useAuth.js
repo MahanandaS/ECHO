@@ -1,131 +1,89 @@
 import { useEffect, useState } from 'react';
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged,
+  updateProfile,
+} from 'firebase/auth';
+import { auth } from '../firebase.js';
 
-const AUTH_STORAGE_KEY = 'blog.auth.user';
-const USERS_STORAGE_KEY = 'blog.users.v1';
+const ADMIN_EMAIL = 'admin@blog.com';
 const ADMIN_ID = 'admin-owner';
-
-// Initialize with admin user
-const initializeUsers = () => {
-  const existing = localStorage.getItem(USERS_STORAGE_KEY);
-  if (!existing) {
-    const defaultUsers = [
-      {
-        id: ADMIN_ID,
-        email: 'admin@blog.com',
-        password: 'admin123',
-        name: 'Admin',
-        role: 'admin',
-        isAdmin: true,
-        createdAt: new Date().toISOString(),
-      },
-    ];
-    localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(defaultUsers));
-  }
-};
-
-const getUsers = () => {
-  try {
-    const users = localStorage.getItem(USERS_STORAGE_KEY);
-    return users ? JSON.parse(users) : [];
-  } catch {
-    return [];
-  }
-};
-
-const saveUsers = (users) => {
-  localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
-};
 
 export function useAuth() {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    initializeUsers();
-    const storedUser = localStorage.getItem(AUTH_STORAGE_KEY);
-    if (storedUser) {
-      try {
-        setUser(JSON.parse(storedUser));
-      } catch {
+    // Listen to Firebase auth state changes
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      if (firebaseUser) {
+        setUser({
+          id: firebaseUser.uid,
+          email: firebaseUser.email,
+          name: firebaseUser.displayName || firebaseUser.email.split('@')[0],
+          isAdmin: firebaseUser.email === ADMIN_EMAIL,
+          role: firebaseUser.email === ADMIN_EMAIL ? 'admin' : 'user',
+        });
+      } else {
         setUser(null);
       }
-    }
-    setIsLoading(false);
+      setIsLoading(false);
+    });
+
+    return () => unsubscribe();
   }, []);
 
-  const signup = (email, password, name) => {
+  const signup = async (email, password, name) => {
     if (!email || !password || !name) {
       throw new Error('All fields are required');
     }
-
     if (password.length < 6) {
       throw new Error('Password must be at least 6 characters');
     }
-
     if (!email.includes('@')) {
       throw new Error('Please enter a valid email');
     }
 
-    const users = getUsers();
-    const existingUser = users.find((u) => u.email === email);
-
-    if (existingUser) {
-      throw new Error('Email already registered');
-    }
-
-    const newUser = {
-      id: `user-${Date.now()}`,
-      email,
-      password,
-      name: name.trim(),
-      role: 'user',
-      isAdmin: false,
-      createdAt: new Date().toISOString(),
-    };
-
-    users.push(newUser);
-    saveUsers(users);
+    const result = await createUserWithEmailAndPassword(auth, email, password);
+    
+    // Save display name to Firebase
+    await updateProfile(result.user, { displayName: name.trim() });
 
     const userData = {
-      id: newUser.id,
-      email: newUser.email,
-      name: newUser.name,
-      role: newUser.role,
-      isAdmin: newUser.isAdmin,
+      id: result.user.uid,
+      email: result.user.email,
+      name: name.trim(),
+      isAdmin: email === ADMIN_EMAIL,
+      role: email === ADMIN_EMAIL ? 'admin' : 'user',
     };
 
-    localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(userData));
     setUser(userData);
     return userData;
   };
 
-  const login = (email, password) => {
+  const login = async (email, password) => {
     if (!email || !password) {
       throw new Error('Email and password are required');
     }
 
-    const users = getUsers();
-    const foundUser = users.find((u) => u.email === email && u.password === password);
-
-    if (!foundUser) {
-      throw new Error('Invalid email or password');
-    }
-
+    const result = await signInWithEmailAndPassword(auth, email, password);
+    
     const userData = {
-      id: foundUser.id,
-      email: foundUser.email,
-      name: foundUser.name,
-      role: foundUser.role,
-      isAdmin: foundUser.isAdmin,
+      id: result.user.uid,
+      email: result.user.email,
+      name: result.user.displayName || result.user.email.split('@')[0],
+      isAdmin: result.user.email === ADMIN_EMAIL,
+      role: result.user.email === ADMIN_EMAIL ? 'admin' : 'user',
     };
 
-    localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(userData));
     setUser(userData);
     return userData;
   };
 
-  const logout = () => {
-    localStorage.removeItem(AUTH_STORAGE_KEY);
+  const logout = async () => {
+    await signOut(auth);
     setUser(null);
   };
 

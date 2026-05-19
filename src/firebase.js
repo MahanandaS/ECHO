@@ -1,5 +1,6 @@
 import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
+import { getAuth } from 'firebase/auth';
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -18,18 +19,16 @@ const isFirebaseConfigured = Boolean(
 
 let app = null;
 let db = null;
+let auth = null;
 
 if (isFirebaseConfigured) {
   try {
     app = initializeApp(firebaseConfig);
     db = getFirestore(app);
+    auth = getAuth(app);
   } catch (error) {
     console.error('Firebase initialization failed:', error);
   }
-} else if (import.meta.env.DEV) {
-  console.warn(
-    'Firebase is not configured. Copy .env.example to .env.local and add your VITE_FIREBASE_* keys.',
-  );
 }
 
-export { app, db, isFirebaseConfigured };
+export { app, db, auth, isFirebaseConfigured };
