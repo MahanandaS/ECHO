@@ -21,6 +21,7 @@ export default function BlogDetailPage({
   currentUserId,
   currentUserName = 'Reader',
   isGuest = false,
+  isAdmin = false,
 }) {
   const { postId } = useParams();
   const navigate = useNavigate();
@@ -193,6 +194,7 @@ export default function BlogDetailPage({
               authorName={currentUserName}
               postOwnerId={post.ownerId}
               currentUserId={currentUserId}
+              isAdmin={isAdmin}
             />
           </div>
 

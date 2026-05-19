@@ -14,6 +14,7 @@ const FIREBASE_SETUP_MESSAGE =
   'Firebase is not configured. Create .env.local from .env.example, add your keys, then restart the dev server.';
 
 const ADMIN_ID = 'admin-owner';
+const ADMIN_UID = 'ncTz91HofKOpDBnJE5Kp7q2v3V52';
 
 const mapFirestorePost = (docSnap) => {
   const data = docSnap.data();
@@ -326,7 +327,7 @@ export function usePosts() {
       const post = posts.find(p => p.id === postId);
       
       // Allow if user is the owner or admin
-      return post && (post.ownerId === currentUserId || currentUserId === ADMIN_ID);
+      return post && (post.ownerId === currentUserId || currentUserId === ADMIN_ID || currentUserId === ADMIN_UID);
     } catch (err) {
       console.error('Error checking edit permission:', err);
       return false;
@@ -343,7 +344,7 @@ export function usePosts() {
       const post = posts.find(p => p.id === postId);
       
       // Allow if user is the owner or admin
-      return post && (post.ownerId === currentUserId || currentUserId === ADMIN_ID);
+      return post && (post.ownerId === currentUserId || currentUserId === ADMIN_ID || currentUserId === ADMIN_UID);
     } catch (err) {
       console.error('Error checking delete permission:', err);
       return false;

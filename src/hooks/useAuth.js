@@ -8,7 +8,7 @@ import {
 } from 'firebase/auth';
 import { auth } from '../firebase.js';
 
-const ADMIN_EMAIL = 'admin@blog.com';
+const ADMIN_EMAIL = 'mihirsinha0@gmail.com';
 const ADMIN_UID = 'ncTz91HofKOpDBnJE5Kp7q2v3V52';
 const ADMIN_ID = 'admin-owner';
 

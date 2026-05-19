@@ -1,4 +1,4 @@
-﻿import { ArrowUp, MessageCircle, Trash2 } from 'lucide-react';
+import { ArrowUp, MessageCircle, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -13,6 +13,7 @@ export default function EngagementSection({
   authorName = 'Reader',
   postOwnerId = null,
   currentUserId = null,
+  isAdmin = false,
 }) {
   const [commentText, setCommentText] = useState('');
   const commentCount = commentsList.length;
@@ -79,7 +80,7 @@ export default function EngagementSection({
                     </p>
                     <div className="flex items-center gap-3">
                       <time className="font-sans text-xs text-echo-body/70">{comment.createdAt}</time>
-                      {isPostAuthor && (
+                      {(isPostAuthor || isAdmin) && (
                         <button
                           type="button"
                           onClick={() => {

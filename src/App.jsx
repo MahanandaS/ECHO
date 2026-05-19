@@ -67,17 +67,18 @@ export default function App() {
       }
       canEdit={
         isAuthenticated
-          ? async (postId) => postsState.canEditPost(postId, currentUserId)
+          ? async (postId) => authState.user?.isAdmin || postsState.canEditPost(postId, currentUserId)
           : undefined
       }
       canDelete={
         isAuthenticated
-          ? async (postId) => postsState.canDeletePost(postId, currentUserId)
+          ? async (postId) => authState.user?.isAdmin || postsState.canDeletePost(postId, currentUserId)
           : undefined
       }
       currentUserId={currentUserId}
       currentUserName={currentUserName}
       isGuest={!isAuthenticated}
+      isAdmin={authState.user?.isAdmin || false}
     />
   );
 
@@ -157,7 +158,7 @@ export default function App() {
               onUpdatePost={(postId, updates) =>
                 postsState.updatePost(postId, updates, currentUserId)
               }
-              canEdit={async (postId) => postsState.canEditPost(postId, currentUserId)}
+              canEdit={async (postId) => authState.user?.isAdmin || postsState.canEditPost(postId, currentUserId)}
             />
           </ProtectedRoute>
         }
