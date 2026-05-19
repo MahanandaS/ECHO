@@ -1,4 +1,4 @@
-﻿import { Navigate, Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
 import AppLayout from './layouts/AppLayout.jsx';
 import LoginPage from './pages/LoginPage.jsx';
@@ -6,6 +6,7 @@ import LandingPage from './pages/LandingPage.jsx';
 import CreatePostPage from './pages/CreatePostPage.jsx';
 import BlogDetailPage from './pages/BlogDetailPage.jsx';
 import ExplorePage from './pages/ExplorePage.jsx';
+import AdminPage from './pages/AdminPage.jsx';
 import ProtectedRoute from './components/ProtectedRoute.jsx';
 import { usePosts } from './hooks/usePosts.js';
 import { useAuth } from './hooks/useAuth.js';
@@ -80,81 +81,110 @@ export default function App() {
     />
   );
 
-  if (!isAuthenticated) {
-    return (
-      <Routes>
-        <Route
-          path="/login"
-          element={<LoginPage onLogin={authState.login} onSignup={authState.signup} />}
-        />
-        <Route
-          path="/"
-          element={
-            <AppLayout isGuest>
-              <LandingPage posts={postsState.posts} />
-            </AppLayout>
-          }
-        />
-        <Route
-          path="/explore"
-          element={
-            <AppLayout isGuest>
-              <ExplorePage posts={postsState.posts} />
-            </AppLayout>
-          }
-        />
-        <Route
-          path="/post/:postId"
-          element={<AppLayout isGuest>{detailPage}</AppLayout>}
-        />
-        <Route path="/create" element={<Navigate to="/login" replace />} />
-        <Route path="/edit/:postId" element={<Navigate to="/login" replace />} />
-        <Route path="/feed" element={<Navigate to="/explore" replace />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    );
+  const location = useLocation();
+  const isLoginPage = location.pathname === '/login';
+
+  const routesContent = (
+    <Routes>
+      <Route
+        path="/login"
+        element={
+          isAuthenticated ? (
+            <Navigate to="/" replace />
+          ) : (
+            <LoginPage onLogin={authState.login} onSignup={authState.signup} />
+          )
+        }
+      />
+      <Route
+        path="/"
+        element={<LandingPage posts={postsState.posts} isAuthenticated={isAuthenticated} />}
+      />
+      <Route
+        path="/explore"
+        element={
+          <ProtectedRoute isAuthenticated={isAuthenticated}>
+            <ExplorePage posts={postsState.posts} />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/feed"
+        element={
+          <ProtectedRoute isAuthenticated={isAuthenticated}>
+            <Navigate to="/explore" replace />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/post/:postId"
+        element={
+          <ProtectedRoute isAuthenticated={isAuthenticated}>
+            {detailPage}
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/blog/:postId"
+        element={
+          <ProtectedRoute isAuthenticated={isAuthenticated}>
+            {detailPage}
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/create"
+        element={
+          <ProtectedRoute isAuthenticated={isAuthenticated}>
+            <CreatePostPage
+              user={authState.user}
+              onCreatePost={(post) => postsState.createPost(post, currentUserId)}
+              onUpdatePost={(postId, updates) =>
+                postsState.updatePost(postId, updates, currentUserId)
+              }
+            />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/edit/:postId"
+        element={
+          <ProtectedRoute isAuthenticated={isAuthenticated}>
+            <CreatePostPage
+              user={authState.user}
+              posts={postsState.posts}
+              onCreatePost={(post) => postsState.createPost(post, currentUserId)}
+              onUpdatePost={(postId, updates) =>
+                postsState.updatePost(postId, updates, currentUserId)
+              }
+              canEdit={async (postId) => postsState.canEditPost(postId, currentUserId)}
+            />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin"
+        element={
+          <ProtectedRoute isAuthenticated={isAuthenticated}>
+            {authState.user?.isAdmin ? (
+              <AdminPage postsState={postsState} />
+            ) : (
+              <Navigate to="/feed" replace />
+            )}
+          </ProtectedRoute>
+        }
+      />
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  );
+
+  if (isLoginPage) {
+    return routesContent;
   }
 
   return (
-    <AppLayout user={authState.user} onLogout={authState.logout}>
-      <Routes>
-        <Route path="/" element={<LandingPage posts={postsState.posts} />} />
-        <Route path="/explore" element={<ExplorePage posts={postsState.posts} />} />
-        <Route path="/post/:postId" element={detailPage} />
-        <Route
-          path="/create"
-          element={
-            <ProtectedRoute isAuthenticated={isAuthenticated}>
-              <CreatePostPage
-                user={authState.user}
-                onCreatePost={(post) => postsState.createPost(post, currentUserId)}
-                onUpdatePost={(postId, updates) =>
-                  postsState.updatePost(postId, updates, currentUserId)
-                }
-              />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/edit/:postId"
-          element={
-            <ProtectedRoute isAuthenticated={isAuthenticated}>
-              <CreatePostPage
-                user={authState.user}
-                posts={postsState.posts}
-                onCreatePost={(post) => postsState.createPost(post, currentUserId)}
-                onUpdatePost={(postId, updates) =>
-                  postsState.updatePost(postId, updates, currentUserId)
-                }
-                canEdit={async (postId) => postsState.canEditPost(postId, currentUserId)}
-              />
-            </ProtectedRoute>
-          }
-        />
-        <Route path="/feed" element={<Navigate to="/explore" replace />} />
-        <Route path="/login" element={<Navigate to="/" replace />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+    <AppLayout user={authState.user} onLogout={authState.logout} isGuest={!isAuthenticated}>
+      {routesContent}
     </AppLayout>
   );
 }

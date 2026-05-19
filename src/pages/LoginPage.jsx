@@ -1,10 +1,12 @@
 import { LogIn, UserPlus } from 'lucide-react';
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import PageTransition from '../components/PageTransition.jsx';
 
 export default function LoginPage({ onLogin, onSignup }) {
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from?.pathname || '/explore';
   const [mode, setMode] = useState('signin'); // 'signin' or 'signup'
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -19,7 +21,7 @@ export default function LoginPage({ onLogin, onSignup }) {
 
   try {
     await onLogin(email, password);  // added await
-    navigate('/explore');
+    navigate(from, { replace: true });
   } catch (err) {
     setError(err.message || 'Sign in failed');
   } finally {
@@ -34,7 +36,7 @@ export default function LoginPage({ onLogin, onSignup }) {
 
   try {
     await onSignup(email, password, name);  // added await
-    navigate('/explore');
+    navigate(from, { replace: true });
   } catch (err) {
     setError(err.message || 'Sign up failed');
   } finally {

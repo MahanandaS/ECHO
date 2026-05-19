@@ -28,7 +28,7 @@ export default function AppLayout({ children, user, onLogout, isGuest = false })
           </Link>
 
           <div className="hidden items-center gap-10 md:flex">
-            {navItems.map((item) => (
+            {!isGuest && navItems.map((item) => (
               <NavLink
                 key={item.href}
                 to={item.href}
@@ -66,6 +66,15 @@ export default function AppLayout({ children, user, onLogout, isGuest = false })
                   {userMenuOpen && (
                     <div className="absolute right-0 mt-2 w-52 rounded-xl border border-white/10 bg-echo-secondary/95 p-2 shadow-2xl backdrop-blur-md">
                       <p className="px-3 py-2 font-sans text-xs text-echo-body">{user.email}</p>
+                      {user.isAdmin && (
+                        <Link
+                          to="/admin"
+                          onClick={() => setUserMenuOpen(false)}
+                          className="flex w-full items-center gap-2 rounded-lg px-3 py-2 font-sans text-sm text-echo-body transition hover:bg-white/5 hover:text-echo-heading border-b border-white/[0.05] pb-2 mb-1"
+                        >
+                          Admin Panel
+                        </Link>
+                      )}
                       <button
                         type="button"
                         onClick={() => {
@@ -97,7 +106,7 @@ export default function AppLayout({ children, user, onLogout, isGuest = false })
         {menuOpen && (
           <div className="border-t border-white/[0.08] bg-black/90 backdrop-blur-md md:hidden">
             <div className="page-shell space-y-1 py-4">
-              {navItems.map((item) => (
+              {!isGuest && navItems.map((item) => (
                 <NavLink
                   key={item.href}
                   to={item.href}
@@ -111,6 +120,19 @@ export default function AppLayout({ children, user, onLogout, isGuest = false })
                   {item.label}
                 </NavLink>
               ))}
+              {user?.isAdmin && (
+                <NavLink
+                  to="/admin"
+                  onClick={() => setMenuOpen(false)}
+                  className={({ isActive }) =>
+                    `block rounded-lg px-3 py-3 font-sans text-sm ${
+                      isActive ? 'bg-white/5 text-echo-heading' : 'text-echo-body'
+                    }`
+                  }
+                >
+                  Admin Panel
+                </NavLink>
+              )}
               {isGuest ? (
                 <Link
                   to="/login"

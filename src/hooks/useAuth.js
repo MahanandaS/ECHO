@@ -9,6 +9,7 @@ import {
 import { auth } from '../firebase.js';
 
 const ADMIN_EMAIL = 'admin@blog.com';
+const ADMIN_UID = 'ncTz91HofKOpDBnJE5Kp7q2v3V52';
 const ADMIN_ID = 'admin-owner';
 
 export function useAuth() {
@@ -23,8 +24,8 @@ export function useAuth() {
           id: firebaseUser.uid,
           email: firebaseUser.email,
           name: firebaseUser.displayName || firebaseUser.email.split('@')[0],
-          isAdmin: firebaseUser.email === ADMIN_EMAIL,
-          role: firebaseUser.email === ADMIN_EMAIL ? 'admin' : 'user',
+          isAdmin: firebaseUser.email === ADMIN_EMAIL || firebaseUser.uid === ADMIN_UID,
+          role: (firebaseUser.email === ADMIN_EMAIL || firebaseUser.uid === ADMIN_UID) ? 'admin' : 'user',
         });
       } else {
         setUser(null);
@@ -55,8 +56,8 @@ export function useAuth() {
       id: result.user.uid,
       email: result.user.email,
       name: name.trim(),
-      isAdmin: email === ADMIN_EMAIL,
-      role: email === ADMIN_EMAIL ? 'admin' : 'user',
+      isAdmin: email === ADMIN_EMAIL || result.user.uid === ADMIN_UID,
+      role: (email === ADMIN_EMAIL || result.user.uid === ADMIN_UID) ? 'admin' : 'user',
     };
 
     setUser(userData);
@@ -74,8 +75,8 @@ export function useAuth() {
       id: result.user.uid,
       email: result.user.email,
       name: result.user.displayName || result.user.email.split('@')[0],
-      isAdmin: result.user.email === ADMIN_EMAIL,
-      role: result.user.email === ADMIN_EMAIL ? 'admin' : 'user',
+      isAdmin: result.user.email === ADMIN_EMAIL || result.user.uid === ADMIN_UID,
+      role: (result.user.email === ADMIN_EMAIL || result.user.uid === ADMIN_UID) ? 'admin' : 'user',
     };
 
     setUser(userData);
