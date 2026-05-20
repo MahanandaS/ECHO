@@ -43,6 +43,7 @@ export default function CreatePostPage({
   const [draft, setDraft] = useState(loadDraft);
   const [mode, setMode] = useState('write');
   const [canEditPost, setCanEditPost] = useState(!isEditing);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (!isEditing || !canEdit || !postId) {
@@ -105,45 +106,47 @@ export default function CreatePostPage({
   };
 
   const handleSubmit = async (event) => {
-    event.preventDefault();
-    if (!draft.title.trim() || !draft.content.trim() || !draft.authorName.trim()) {
-      alert('Please fill in title, content, and author name');
+  event.preventDefault();
+  if (!draft.title.trim() || !draft.content.trim() || !draft.authorName.trim()) {
+    alert('Please fill in title, content, and author name');
+    return;
+  }
+
+  if (isSubmitting) return; // prevent double submit
+  setIsSubmitting(true);   // disable button immediately
+
+  const postPayload = {
+    title: draft.title.trim(),
+    excerpt: draft.excerpt.trim() || draft.content.trim().slice(0, 150),
+    content: draft.content.trim(),
+    category: draft.category,
+    image: draft.image || fallbackImage,
+    author: draft.authorName.trim(),
+    authorBio: draft.authorBio.trim() || 'Writer',
+    authorInitials: draft.authorName.trim().charAt(0).toUpperCase(),
+  };
+
+  try {
+    if (isEditing) {
+      const updatedPost = await onUpdatePost(postId, postPayload);
+      navigate(`/post/${updatedPost?.id || postId}`);
       return;
     }
 
-    const postPayload = {
-      title: draft.title.trim(),
-      excerpt: draft.excerpt.trim() || draft.content.trim().slice(0, 150),
-      content: draft.content.trim(),
-      category: draft.category,
-      image: draft.image || fallbackImage,
-      author: draft.authorName.trim(),
-      authorBio: draft.authorBio.trim() || 'Writer',
-      authorInitials: draft.authorName.trim().charAt(0).toUpperCase(),
-    };
-
-    try {
-      if (isEditing) {
-        // Wait for update to complete
-        const updatedPost = await onUpdatePost(postId, postPayload);
-        navigate(`/post/${updatedPost?.id || postId}`);
-        return;
-      }
-
-      // Wait for creation to complete
-      const post = await onCreatePost(postPayload);
-      if (!post?.id) {
-        alert('Failed to publish essay. Please try again.');
-        return;
-      }
-      clearDraft();
-      navigate(`/post/${post.id}`);
-    } catch (error) {
-      console.error('Failed to save post:', error);
-      alert('Failed to save post. Please try again.');
+    const post = await onCreatePost(postPayload);
+    if (!post?.id) {
+      alert('Failed to publish essay. Please try again.');
+      return;
     }
-  };
-
+    clearDraft();
+    navigate(`/post/${post.id}`);
+  } catch (error) {
+    console.error('Failed to save post:', error);
+    alert('Failed to save post. Please try again.');
+  } finally {
+    setIsSubmitting(false); // re-enable button if error
+  }
+};
   if (isEditing && !editingPost) {
     return (
       <PageTransition>
@@ -347,7 +350,7 @@ export default function CreatePostPage({
                   <span>
                     <ImagePlus className="mx-auto mb-3 h-6 w-6 text-echo-light/50" />
                     <span className="block font-serif-text text-echo-light/70">Add image</span>
-                    <span className="mt-2 block text-xs text-echo-light/40">Stored locally</span>
+                    <span className="mt-2 block text-xs text-echo-light/40">Stored in cloud</span>
                   </span>
                 </label>
               )}
@@ -408,12 +411,14 @@ export default function CreatePostPage({
             </div>
 
             <button
-              type="submit"
-              className="w-full bg-echo-light text-echo-dark px-6 py-3 font-serif-text transition hover:bg-echo-cream disabled:cursor-not-allowed disabled:opacity-50 mb-3"
-              disabled={!draft.title.trim() || !draft.content.trim()}
-            >
-              {isEditing ? 'Update Essay' : 'Publish Essay'}
-            </button>
+  type="submit"
+  className="w-full bg-echo-light text-echo-dark px-6 py-3 font-serif-text transition hover:bg-echo-cream disabled:cursor-not-allowed disabled:opacity-50 mb-3"
+  disabled={!draft.title.trim() || !draft.content.trim() || isSubmitting}
+>
+  {isSubmitting
+    ? isEditing ? 'Updating...' : 'Publishing...'
+    : isEditing ? 'Update Essay' : 'Publish Essay'}
+</button>
 
             <button
               type="button"
