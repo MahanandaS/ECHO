@@ -131,7 +131,9 @@ export default function CreatePostPage({
     excerpt: draft.excerpt.trim() || draft.content.trim().slice(0, 150),
     content: draft.content.trim(),
     category: draft.category,
-    image: draft.image || categoryFallbackImages[draft.category] || categoryFallbackImages.default,
+    image: draft.image && !Object.values(categoryFallbackImages).includes(draft.image)
+  ? draft.image
+  : categoryFallbackImages[draft.category] || categoryFallbackImages.default,
     author: draft.authorName.trim(),
     authorBio: draft.authorBio.trim() || 'Writer',
     authorInitials: draft.authorName.trim().charAt(0).toUpperCase(),
