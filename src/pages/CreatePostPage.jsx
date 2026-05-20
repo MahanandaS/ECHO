@@ -5,8 +5,19 @@ import ArticleBody from '../components/ArticleBody.jsx';
 import PageTransition from '../components/PageTransition.jsx';
 import { categories } from '../data/seedPosts.js';
 
-const fallbackImage =
-  'https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=1200&q=80';
+const categoryFallbackImages = {
+  Psychology: 'https://images.unsplash.com/photo-1559757175-5700dde675bc?auto=format&fit=crop&w=1200&q=80',
+  Philosophy: 'https://images.unsplash.com/photo-1490730141103-6cac27aaab94?auto=format&fit=crop&w=1200&q=80',
+  Creativity: 'https://images.unsplash.com/photo-1513364776144-60967b0f800f?auto=format&fit=crop&w=1200&q=80',
+  Technology: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=80',
+  Relationships: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=1200&q=80',
+  Culture: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=1200&q=80',
+  Writing: 'https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=1200&q=80',
+  Science: 'https://images.unsplash.com/photo-1507413245164-6160d8298b31?auto=format&fit=crop&w=1200&q=80',
+  Ideas: 'https://images.unsplash.com/photo-1456406644174-8ddd4cd52a06?auto=format&fit=crop&w=1200&q=80',
+  Life: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=1200&q=80',
+  default: 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=1200&q=80',
+};
 const DRAFT_STORAGE_KEY = 'blog.draft';
 
 const defaultDraft = {
@@ -120,7 +131,7 @@ export default function CreatePostPage({
     excerpt: draft.excerpt.trim() || draft.content.trim().slice(0, 150),
     content: draft.content.trim(),
     category: draft.category,
-    image: draft.image || fallbackImage,
+    image: draft.image || categoryFallbackImages[draft.category] || categoryFallbackImages.default,
     author: draft.authorName.trim(),
     authorBio: draft.authorBio.trim() || 'Writer',
     authorInitials: draft.authorName.trim().charAt(0).toUpperCase(),
@@ -359,7 +370,7 @@ export default function CreatePostPage({
             <div className="mb-6 border border-echo-light/10 bg-echo-dark/20 p-4">
               <p className="text-xs font-serif-text tracking-wider text-echo-light/60 mb-3">PUBLISH TO</p>
               <p className="font-serif-text text-echo-light mb-2">Echo Essays</p>
-              <p className="text-sm text-echo-light/50 font-serif-text">
+              <p className="text-sm text-echo-light/50 font-serif-text">o
                 Your essay will be visible to all readers and can be edited or removed anytime.
               </p>
             </div>
